@@ -1,8 +1,10 @@
-# aviouf Project
+# Quarkus Vixen TODO demo app
 
 This project uses Quarkus, the Supersonic Subatomic Java Framework.
 
 If you want to learn more about Quarkus, please visit its website: https://quarkus.io/ .
+
+You will need to get, build and install the vixen branch in order to try this out: https://github.com/FroMage/quarkus/tree/vixen
 
 ## Running the application in dev mode
 
@@ -45,13 +47,3 @@ You can then execute your native executable with: `./target/aviouf-1.0.0-SNAPSHO
 
 If you want to learn more about building native executables, please consult https://quarkus.io/guides/maven-tooling.html.
 
-## Related Guides
-
-
-## Provided Code
-
-### RESTEasy Reactive
-
-Easily start your Reactive RESTful Web Services
-
-[Related guide section...](https://quarkus.io/guides/getting-started-reactive#reactive-jax-rs-resources)
