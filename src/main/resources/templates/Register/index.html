@@ -1,0 +1,21 @@
+{#include main.html }
+{#title}Register{/title}
+
+<div class="row">
+  <div class="col-md-6">
+
+{#form uri:Register.register()}
+
+    <fieldset>
+        <legend>Register</legend>
+        {#formElement name="email" label="Email"}
+            {#input name="email"/}
+        {/formElement}
+        <button type="submit" class="btn btn-primary">Register</button>
+    </fieldset>
+    
+{/form}
+
+</div>
+</div>
+{/include}

@@ -1,0 +1,24 @@
+{#include main.html }
+{#title}Login{/title}
+
+<div class="row">
+  <div class="col-md-6">
+
+{#form uri:Login.login()}
+
+    <fieldset>
+        <legend>Login</legend>
+        {#formElement name="userName" label="User Name"}
+            {#input name="userName"/}
+        {/formElement}
+        {#formElement name="password" label="Password"}
+            {#input name="password" type="password"/}
+        {/formElement}
+        <button type="submit" class="btn btn-primary">Login</button>
+    </fieldset>
+    
+{/form}
+
+</div>
+</div>
+{/include}
