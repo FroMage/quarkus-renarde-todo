@@ -20,8 +20,8 @@ public class Startup {
         stef.firstName = "Stef";
         stef.lastName = "Epardaud";
         stef.userName = "fromage";
-        stef.status = UserStatus.REGISTERED;
         stef.password = BcryptUtil.bcryptHash("1q2w3e4r");
+        stef.status = UserStatus.REGISTERED;
         stef.isAdmin = true;
         stef.persist();
 

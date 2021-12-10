@@ -33,34 +33,41 @@ public class Register extends MyController {
         public native static TemplateInstance index();
         public static native TemplateInstance register(User newUser);
         public static native TemplateInstance confirm(User newUser);
+        public static native TemplateInstance confirmOidc(User newUser);
         public static native TemplateInstance logoutFirst();
         public static native TemplateInstance complete(User user);
     }
-    
-	public TemplateInstance index(){
-		return Templates.index();
-	}
-	
+
+    public TemplateInstance index(){
+        return Templates.index();
+    }
+
     @POST
     public TemplateInstance register(@RestForm @NotBlank @Length(max = Util.VARCHAR_SIZE) @Email String email) {
-    	if(validationFailed())
-    		index();
-    	User newUser = User.findUnconfirmedByEmail(email);
-    	if(newUser == null){
-    		newUser = new User();
-    		newUser.email = email;
-    		newUser.confirmationCode = UUID.randomUUID().toString();
-    		newUser.status = UserStatus.CONFIRMATION_REQUIRED;
-    		newUser.persist();
-    	}
-    	Emails.confirm(newUser);
-    	return Templates.register(newUser);
+        if(validationFailed())
+            index();
+        User newUser = User.findUnconfirmedByEmail(email);
+        if(newUser == null){
+            newUser = new User();
+            newUser.email = email;
+            newUser.confirmationCode = UUID.randomUUID().toString();
+            newUser.status = UserStatus.CONFIRMATION_REQUIRED;
+            newUser.persist();
+        }
+        Emails.confirm(newUser);
+        return Templates.register(newUser);
     }
 
     public TemplateInstance confirm(@RestQuery String confirmationCode){
         checkLogoutFirst();
-		User newUser = checkConfirmationCode(confirmationCode);
-    	return Templates.confirm(newUser);
+        User newUser = checkConfirmationCode(confirmationCode);
+        return Templates.confirm(newUser);
+    }
+
+    public TemplateInstance confirmOidc(@RestQuery String authId){
+        checkLogoutFirst();
+        User newUser = checkAuthId(authId);
+        return Templates.confirmOidc(newUser);
     }
 
     private void checkLogoutFirst() {
@@ -73,67 +80,109 @@ public class Register extends MyController {
         return Templates.logoutFirst();
     }
 
-    private User checkConfirmationCode(String confirmationCode) {
-		if(StringUtils.isEmpty(confirmationCode)){
-			validation.addError("confirmationCode", "Missing confirmation code");
-			prepareForErrorRedirect();
-	        redirect(Application.class).index();
-		}
-		User user = User.findForContirmation(confirmationCode);
-    	if(user == null){
-    		validation.addError("confirmationCode", "Invalid confirmation code");
-    		prepareForErrorRedirect();
+    private User checkAuthId(String authId) {
+        if(StringUtils.isEmpty(authId)){
+            validation.addError("confirmationCode", "Missing confirmation code");
+            prepareForErrorRedirect();
             redirect(Application.class).index();
-    	}
-		return user;
-	}
-
-    @POST
-	public Response complete(@RestQuery String confirmationCode, 
-    		@RestForm @NotBlank @Length(max = Util.VARCHAR_SIZE) String userName, 
-    		@RestForm @NotBlank @Length(min = 8, max = Util.VARCHAR_SIZE) String password, 
-    		@RestForm @NotBlank @Length(max = Util.VARCHAR_SIZE) String password2, 
-    		@RestForm @NotBlank @Length(max = Util.VARCHAR_SIZE) String firstName, 
-    		@RestForm @NotBlank @Length(max = Util.VARCHAR_SIZE) String lastName) {
-        checkLogoutFirst();
-        User user = checkConfirmationCode(confirmationCode);
-        
-        if(validationFailed())
-			confirm(confirmationCode);
-		
-        validation.equals("password", password, password2);
-        
-		if(User.findByUserName(userName) != null)
-			validation.addError("userName", "User name already taken");
-		if(validationFailed())
-		    confirm(confirmationCode);
-		
-    	user.userName = userName;
-    	user.password = BcryptUtil.bcryptHash(password);
-    	user.firstName = firstName;
-    	user.lastName = lastName;
-    	user.confirmationCode = null;
-    	user.status = UserStatus.REGISTERED;
-    	user.persist();
-    	
-    	NewCookie cookie = makeUserCookie(user);
-        security.setUser(user);
-    	return Response.ok(Templates.complete(user)).cookie(cookie).build();
+        }
+        User user = User.findForOidcContirmation(authId);
+        if(user == null){
+            validation.addError("confirmationCode", "Invalid confirmation code");
+            prepareForErrorRedirect();
+            redirect(Application.class).index();
+        }
+        return user;
     }
 
-	static NewCookie makeUserCookie(User user) {
-	    Set<String> roles = new HashSet<>();
-	    if(user.isAdmin) {
-	        roles.add("admin");
-	    }
-	    String token =
-	            Jwt.issuer("https://example.com/issuer") 
-	            .upn(user.userName) 
-	             .groups(roles)
-	             .expiresIn(Duration.ofDays(10))
-	           .innerSign().encrypt();
-	    // FIXME: expiry, auto-refresh?
-	    return new NewCookie("QuarkusUser", token, "/", null, Cookie.DEFAULT_VERSION, null, NewCookie.DEFAULT_MAX_AGE, null, false, false);
-	}
+    private User checkConfirmationCode(String confirmationCode) {
+        if(StringUtils.isEmpty(confirmationCode)){
+            validation.addError("confirmationCode", "Missing confirmation code");
+            prepareForErrorRedirect();
+            redirect(Application.class).index();
+        }
+        User user = User.findForManualContirmation(confirmationCode);
+        if(user == null){
+            validation.addError("confirmationCode", "Invalid confirmation code");
+            prepareForErrorRedirect();
+            redirect(Application.class).index();
+        }
+        return user;
+    }
+
+    @POST
+    public TemplateInstance completeOidc(@RestQuery String authId, 
+            @RestForm @NotBlank @Length(max = Util.VARCHAR_SIZE) String userName, 
+            @RestForm @NotBlank @Length(max = Util.VARCHAR_SIZE) String firstName, 
+            @RestForm @NotBlank @Length(max = Util.VARCHAR_SIZE) String lastName) {
+        checkLogoutFirst();
+        User user = checkAuthId(authId);
+
+        if(validationFailed())
+            confirmOidc(authId);
+
+        if(User.findByUserName(userName) != null)
+            validation.addError("userName", "User name already taken");
+        if(validationFailed())
+            confirmOidc(authId);
+
+        user.userName = userName;
+        user.firstName = firstName;
+        user.lastName = lastName;
+        user.status = UserStatus.REGISTERED;
+        user.authId = authId;
+        user.persist();
+
+        security.setUser(user);
+        return Templates.complete(user);
+    }
+
+    @POST
+    public Response complete(@RestQuery String confirmationCode, 
+            @RestForm @NotBlank @Length(max = Util.VARCHAR_SIZE) String userName, 
+            @RestForm @NotBlank @Length(min = 8, max = Util.VARCHAR_SIZE) String password, 
+            @RestForm @NotBlank @Length(max = Util.VARCHAR_SIZE) String password2, 
+            @RestForm @NotBlank @Length(max = Util.VARCHAR_SIZE) String firstName, 
+            @RestForm @NotBlank @Length(max = Util.VARCHAR_SIZE) String lastName) {
+        checkLogoutFirst();
+        User user = checkConfirmationCode(confirmationCode);
+
+        if(validationFailed())
+            confirm(confirmationCode);
+
+        validation.equals("password", password, password2);
+
+        if(User.findByUserName(userName) != null)
+            validation.addError("userName", "User name already taken");
+        if(validationFailed())
+            confirm(confirmationCode);
+
+        user.userName = userName;
+        user.password = BcryptUtil.bcryptHash(password);
+        user.firstName = firstName;
+        user.lastName = lastName;
+        user.status = UserStatus.REGISTERED;
+        user.confirmationCode = null;
+        user.persist();
+
+        NewCookie cookie = makeUserCookie(user);
+        security.setUser(user);
+        return Response.ok(Templates.complete(user)).cookie(cookie).build();
+    }
+
+    static NewCookie makeUserCookie(User user) {
+        Set<String> roles = new HashSet<>();
+        if(user.isAdmin) {
+            roles.add("admin");
+        }
+        String token =
+                Jwt.issuer("https://example.com/issuer") 
+                .upn(user.userName) 
+                .groups(roles)
+                .expiresIn(Duration.ofDays(10))
+                .innerSign().encrypt();
+        // FIXME: expiry, auto-refresh?
+        return new NewCookie("QuarkusUser", token, "/", null, Cookie.DEFAULT_VERSION, null, NewCookie.DEFAULT_MAX_AGE, null, false, false);
+    }
 
 }

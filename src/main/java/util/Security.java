@@ -6,6 +6,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import io.quarkus.security.identity.SecurityIdentity;
+import io.smallrye.jwt.auth.principal.JWTCallerPrincipal;
 import model.User;
 
 @RequestScoped
@@ -26,11 +27,20 @@ public class Security {
             return user == NO_USER ? null : user;
         }
         if(!identity.isAnonymous()) {
-            user = User.findRegisteredByUserName(identity.getPrincipal().getName());
+            JWTCallerPrincipal principal = (JWTCallerPrincipal) identity.getPrincipal();
+            String issuer = principal.getIssuer();
+            if("https://example.com/issuer".equals(issuer)) {
+                // manual login
+                user = User.findRegisteredByUserName(principal.getName());
+            } else {
+                // oidc login
+                user = User.findRegisteredByAuthId(principal.getName());
+            }
             if(user == null) {
                 // FIXME: error for invalid user?
                 // avoid looking it up again
                 user = NO_USER;
+                return null;
             }
         }
         return user;

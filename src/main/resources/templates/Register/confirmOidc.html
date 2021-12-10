@@ -1,18 +1,12 @@
 {#include main.html }
 {#title}Complete registration{/title}
 
-{#form uri:Register.complete(newUser.confirmationCode)}
+{#form uri:Register.completeOidc(newUser.authId)}
 
 <fieldset>
     <legend>Complete registration for {newUser.email}</legend>
     {#formElement name="userName" label="User Name"}
         {#input name="userName"/}
-    {/formElement}
-    {#formElement name="password" label="Password"}
-        {#input name="password" type="password"/}
-    {/formElement}
-    {#formElement name="password2" label="Password Confirmation"}
-        {#input name="password2" type="password"/}
     {/formElement}
     {#formElement name="firstName" label="First Name"}
         {#input name="firstName" value=newUser.firstName/}

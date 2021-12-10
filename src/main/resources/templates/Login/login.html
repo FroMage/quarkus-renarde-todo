@@ -2,23 +2,43 @@
 {#title}Login{/title}
 
 <div class="row">
-  <div class="col-md-6">
-
-{#form uri:Login.login()}
-
+  <div class="col-md-2">
     <fieldset>
-        <legend>Login</legend>
-        {#formElement name="userName" label="User Name"}
-            {#input name="userName"/}
-        {/formElement}
-        {#formElement name="password" label="Password"}
-            {#input name="password" type="password"/}
-        {/formElement}
-        <button type="submit" class="btn btn-primary">Login</button>
-    </fieldset>
-    
-{/form}
+        <legend>Login/Register</legend>
+        <div class="d-grid gap-2">
+          <a class="btn btn-block btn-light" href="{uri:Login.loginNow('github')}" role="button"><img src="/images/signin-github.svg" height="16px" style="vertical-align: text-top"/> GitHub</a>
+          <a class="btn btn-block btn-light" href="{uri:Login.loginNow('google')}" role="button"><img src="/images/signin-google.svg" height="16px" style="vertical-align: text-top"/> Google</a>
+          <a class="btn btn-block btn-light" href="{uri:Login.loginNow('microsoft')}" role="button"><img src="/images/signin-microsoft.svg" height="16px" style="vertical-align: text-top"/> Microsoft</a>
+          <a class="btn btn-block btn-light" href="{uri:Login.loginNow('facebook')}" role="button"><img src="/images/signin-facebook.svg" height="16px" style="vertical-align: text-top"/> Facebook</a>
+          <a class="btn btn-block btn-light" href="{uri:Login.loginNow('apple')}" role="button"><img src="/images/signin-apple.svg" height="16px" style="vertical-align: text-top"/> Apple</a>
+        </div>
+     </fieldset>
+  </div>
+  <div class="col-md-5">
+    {#form uri:Login.manualLogin()}
+        <fieldset>
+            <legend>Login</legend>
+            {#formElement name="userName" label="User Name"}
+                {#input name="userName"/}
+            {/formElement}
+            {#formElement name="password" label="Password"}
+                {#input name="password" type="password"/}
+            {/formElement}
+            <button type="submit" class="btn btn-primary">Login</button>
+        </fieldset>
+    {/form}
+  </div>
+  <div class="col-md-5">
+    {#form uri:Register.register()}
+        <fieldset>
+            <legend>Register</legend>
+            {#formElement name="email" label="Email"}
+                {#input name="email"/}
+            {/formElement}
+            <button type="submit" class="btn btn-primary">Register</button>
+        </fieldset>
+    {/form}
+  </div>
+</div>
 
-</div>
-</div>
 {/include}

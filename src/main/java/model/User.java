@@ -19,13 +19,17 @@ public class User extends PanacheEntity {
 	public String email;
 	@Column(unique = true)
 	public String userName;
-	public String password;
+    public String password;
 	public String firstName;
 	public String lastName;
 	public boolean isAdmin;
-	
+
 	@Column(unique = true)
 	public String confirmationCode;
+
+	@Column(unique = true)
+	public String authId;
+
 	@Column(nullable = false)
 	@Enumerated(EnumType.STRING)
 	public UserStatus status;
@@ -46,14 +50,18 @@ public class User extends PanacheEntity {
         return find("LOWER(userName) = ?1 AND status = ?2", username.toLowerCase(), UserStatus.REGISTERED).firstResult();
     }
 
+    public static User findRegisteredByAuthId(String authId) {
+        return find("authId = ?1 AND status = ?2", authId, UserStatus.REGISTERED).firstResult();
+    }
+
+    public static User findRegisteredByConfirmationCode(String confirmationCode) {
+        return find("confirmationCode = ?1 AND status = ?2", confirmationCode, UserStatus.REGISTERED).firstResult();
+    }
+
     public static User findByUserName(String username) {
         return find("LOWER(userName) = ?1", username.toLowerCase()).firstResult();
     }
     
-    public static User findByUserNameAndConfirmationCode(String username, String confirmationCode) {
-        return find("LOWER(userName) = ?1 AND confirmationCode = ?2", username.toLowerCase(), confirmationCode).firstResult();
-    }
-
 	public static List<User> registeredUsers() {
 		return find("status", UserStatus.REGISTERED).list();
 	}
@@ -62,7 +70,19 @@ public class User extends PanacheEntity {
 		return count("status", UserStatus.REGISTERED);
 	}
 
-    public static User findForContirmation(String confirmationCode) {
+    public static User findForOidcContirmation(String authId) {
+        return find("authId = ?1 AND status = ?2", authId, UserStatus.CONFIRMATION_REQUIRED).firstResult();
+    }
+
+    public static User findForManualContirmation(String confirmationCode) {
         return find("confirmationCode = ?1 AND status = ?2", confirmationCode, UserStatus.CONFIRMATION_REQUIRED).firstResult();
+    }
+
+    public static User findByAuthId(String authId) {
+        return find("authId", authId).firstResult();
+    }
+
+    public static User findByConfirmationCode(String confirmationCode) {
+        return find("authId", confirmationCode).firstResult();
     }
 }

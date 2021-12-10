@@ -37,3 +37,7 @@ nb-configuration.xml
 
 # Local environment
 .env
+
+# private stuff
+src/main/resources/apple-key.txt
+src/main/resources/application-dev.properties
