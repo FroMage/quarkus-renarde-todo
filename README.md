@@ -1,10 +1,10 @@
-# Quarkus Vixen TODO demo app
+# Quarkus Renarde TODO demo app
 
 This project uses Quarkus, the Supersonic Subatomic Java Framework.
 
 If you want to learn more about Quarkus, please visit its website: https://quarkus.io/ .
 
-You will need to get, build and install the vixen branch in order to try this out: https://github.com/FroMage/quarkus/tree/vixen
+You will need to get, build and install the renarde branch in order to try this out: https://github.com/FroMage/quarkus/tree/renarde
 
 ## Running the application in dev mode
 

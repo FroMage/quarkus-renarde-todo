@@ -4,7 +4,7 @@ import javax.ws.rs.Path;
 
 import io.quarkus.qute.CheckedTemplate;
 import io.quarkus.qute.TemplateInstance;
-import io.quarkus.vixen.Controller;
+import io.quarkiverse.renarde.Controller;
 
 public class Application extends Controller {
 

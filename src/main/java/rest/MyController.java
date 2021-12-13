@@ -2,7 +2,7 @@ package rest;
 
 import javax.inject.Inject;
 
-import io.quarkus.vixen.Controller;
+import io.quarkiverse.renarde.Controller;
 import model.User;
 import util.Security;
 

@@ -20,7 +20,7 @@ import email.Emails;
 import io.quarkus.elytron.security.common.BcryptUtil;
 import io.quarkus.qute.CheckedTemplate;
 import io.quarkus.qute.TemplateInstance;
-import io.quarkus.vixen.util.StringUtils;
+import io.quarkiverse.renarde.util.StringUtils;
 import io.smallrye.jwt.build.Jwt;
 import model.User;
 import model.UserStatus;
