@@ -1,6 +1,8 @@
 package model;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -8,12 +10,14 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.persistence.UniqueConstraint;
 
+import io.quarkiverse.renarde.oidc.RenardeUser;
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 
 @Entity
-@Table(name = "user_table")
-public class User extends PanacheEntity {
+@Table(name = "user_table", uniqueConstraints = @UniqueConstraint(columnNames = {"tenantId", "authId"}))
+public class User extends PanacheEntity implements RenardeUser {
 	
 	@Column(nullable = false)
 	public String email;
@@ -27,7 +31,7 @@ public class User extends PanacheEntity {
 	@Column(unique = true)
 	public String confirmationCode;
 
-	@Column(unique = true)
+	public String tenantId;
 	public String authId;
 
 	@Column(nullable = false)
@@ -38,6 +42,25 @@ public class User extends PanacheEntity {
 	public boolean isRegistered(){
 	    return status == UserStatus.REGISTERED;
 	}
+
+    @Override
+    public Set<String> getRoles() {
+        Set<String> roles = new HashSet<>();
+        if(isAdmin) {
+            roles.add("admin");
+        }
+        return roles;
+    }
+
+    @Override
+    public String getUserId() {
+        return userName;
+    }
+
+    @Transient
+    public boolean isOidc() {
+        return tenantId != null;
+    }
 
 	//
 	// Helpers
@@ -50,8 +73,8 @@ public class User extends PanacheEntity {
         return find("LOWER(userName) = ?1 AND status = ?2", username.toLowerCase(), UserStatus.REGISTERED).firstResult();
     }
 
-    public static User findRegisteredByAuthId(String authId) {
-        return find("authId = ?1 AND status = ?2", authId, UserStatus.REGISTERED).firstResult();
+    public static User findRegisteredByAuthId(String tenantId, String authId) {
+        return find("tenantId = ?1 AND authId = ?2 AND status = ?3", tenantId, authId, UserStatus.REGISTERED).firstResult();
     }
 
     public static User findRegisteredByConfirmationCode(String confirmationCode) {
@@ -62,6 +85,10 @@ public class User extends PanacheEntity {
         return find("LOWER(userName) = ?1", username.toLowerCase()).firstResult();
     }
     
+    public static User findByAuthId(String tenantId, String authId) {
+        return find("tenantId = ?1 AND authId = ?2", tenantId, authId).firstResult();
+    }
+
 	public static List<User> registeredUsers() {
 		return find("status", UserStatus.REGISTERED).list();
 	}
@@ -70,19 +97,7 @@ public class User extends PanacheEntity {
 		return count("status", UserStatus.REGISTERED);
 	}
 
-    public static User findForOidcContirmation(String authId) {
-        return find("authId = ?1 AND status = ?2", authId, UserStatus.CONFIRMATION_REQUIRED).firstResult();
-    }
-
-    public static User findForManualContirmation(String confirmationCode) {
+    public static User findForContirmation(String confirmationCode) {
         return find("confirmationCode = ?1 AND status = ?2", confirmationCode, UserStatus.CONFIRMATION_REQUIRED).firstResult();
-    }
-
-    public static User findByAuthId(String authId) {
-        return find("authId", authId).firstResult();
-    }
-
-    public static User findByConfirmationCode(String confirmationCode) {
-        return find("authId", confirmationCode).firstResult();
     }
 }

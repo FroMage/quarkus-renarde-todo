@@ -13,9 +13,10 @@ import io.quarkus.qute.CheckedTemplate;
 import io.quarkus.qute.TemplateInstance;
 import io.quarkus.security.Authenticated;
 import model.Todo;
+import model.User;
 
 @Authenticated
-public class Todos extends MyController {
+public class Todos extends ControllerWithUser {
 
     @CheckedTemplate
     static class Templates {

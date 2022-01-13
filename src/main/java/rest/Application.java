@@ -1,11 +1,13 @@
 package rest;
 
+import javax.enterprise.context.RequestScoped;
 import javax.ws.rs.Path;
 
+import io.quarkiverse.renarde.Controller;
 import io.quarkus.qute.CheckedTemplate;
 import io.quarkus.qute.TemplateInstance;
-import io.quarkiverse.renarde.Controller;
 
+@RequestScoped
 public class Application extends Controller {
 
     @CheckedTemplate

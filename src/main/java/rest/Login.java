@@ -1,48 +1,62 @@
 package rest;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.UUID;
 
 import javax.inject.Inject;
-import javax.transaction.Transactional;
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.ws.rs.POST;
-import javax.ws.rs.Path;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
 
-import org.eclipse.microprofile.jwt.Claims;
-import org.eclipse.microprofile.jwt.JsonWebToken;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
+import org.hibernate.validator.constraints.Length;
 import org.jboss.resteasy.reactive.RestForm;
-import org.jboss.resteasy.reactive.RestPath;
+import org.jboss.resteasy.reactive.RestQuery;
 
+import email.Emails;
+import io.quarkiverse.renarde.oidc.RenardeSecurity;
+import io.quarkiverse.renarde.router.Router;
+import io.quarkiverse.renarde.util.StringUtils;
 import io.quarkus.elytron.security.common.BcryptUtil;
-import io.quarkus.logging.Log;
-import io.quarkus.oidc.AccessTokenCredential;
-import io.quarkus.oidc.IdToken;
-import io.quarkus.oidc.UserInfo;
-import io.quarkus.oidc.runtime.OidcConfig;
 import io.quarkus.qute.CheckedTemplate;
 import io.quarkus.qute.TemplateInstance;
 import io.quarkus.security.Authenticated;
-import io.quarkiverse.renarde.Controller;
-import io.quarkiverse.renarde.router.Router;
 import model.User;
 import model.UserStatus;
-import rest.GithubClient.Email;
 
-public class Login extends Controller {
+public class Login extends ControllerWithUser {
 
+    @Inject
+    RenardeSecurity security;
+    
     @CheckedTemplate
     static class Templates {
         public static native TemplateInstance login();
+        public static native TemplateInstance register(String email);
+        public static native TemplateInstance confirm(User newUser);
+        public static native TemplateInstance logoutFirst();
+        public static native TemplateInstance welcome();
     }
-    
+
+    /**
+     * Login page
+     */
     public TemplateInstance login() {
         return Templates.login();
     }
 
+    /**
+     * Welcome page at the end of registration
+     */
+    @Authenticated
+    public TemplateInstance welcome() {
+        return Templates.welcome();
+    }
+
+    /**
+     * Manual login form
+     */
     @POST
     public Response manualLogin(@NotBlank @RestForm String userName, 
             @NotBlank @RestForm String password) {
@@ -56,156 +70,109 @@ public class Login extends Controller {
             prepareForErrorRedirect();
             login();
         }
-        NewCookie cookie = Register.makeUserCookie(user);
+        NewCookie cookie = security.makeUserCookie(user);
         return Response.seeOther(Router.getURI(Application::index)).cookie(cookie).build();
     }
-        
-    @Path("/login-{provider}")
-    @Authenticated
-    public void loginNow(@RestPath String provider) {
-        // never actually called, but better be safe
-        redirect(Application.class).index();
-    }
 
-    @Inject
-    OidcConfig oidcConfig;
 
-    @Path("/logout")
-    public Response logout() {
-        List<NewCookie> cookies = new ArrayList<>(oidcConfig.namedTenants.size() + 1);
-        // Default tenant
-        cookies.add(new NewCookie("q_session", null, "/", null, null, 0, false, true));
-        // Named tenants
-        for (String tenant : oidcConfig.namedTenants.keySet()) {
-            cookies.add(new NewCookie("q_session_"+tenant, null, "/", null, null, 0, false, true));
+    /**
+     * Manual registration form, sends confirmation email
+     */
+    @POST
+    public TemplateInstance register(@RestForm @NotBlank @Email String email) {
+        if(validationFailed())
+            login();
+        User newUser = User.findUnconfirmedByEmail(email);
+        if(newUser == null) {
+            newUser = new User();
+            newUser.email = email;
+            newUser.status = UserStatus.CONFIRMATION_REQUIRED;
+            newUser.confirmationCode = UUID.randomUUID().toString();
+            newUser.persist();
         }
-        // Manual
-        cookies.add(new NewCookie("QuarkusUser", null, "/", null, null, 0, false, true));
-        return Response.seeOther(Router.getURI(Application::index)).cookie(cookies.toArray(new NewCookie[0])).build();
+        // send the confirmation code again
+        Emails.confirm(newUser);
+        return Templates.register(email);
     }
 
-    @Inject
-    AccessTokenCredential accessToken;
 
-    @Inject
-    @IdToken
-    JsonWebToken idToken;
+    /**
+     * Confirmation form, once email is verified, to add user info
+     */
+    public TemplateInstance confirm(@RestQuery String confirmationCode){
+        checkLogoutFirst();
+        User newUser = checkConfirmationCode(confirmationCode);
+        return Templates.confirm(newUser);
+    }
 
-    @Inject
-    UserInfo userInfo;
-    
-    @RestClient
-    GithubClient client;
+    private void checkLogoutFirst() {
+        if(getUser() != null) {
+            logoutFirst();
+        }
+    }
 
-    @Transactional
-    public void githubLoginSuccess() {
-        // something is coming
-        String authId = userInfo.getLong("id").toString();
-        User user = User.findByAuthId(authId);
-        if(user == null) {
-            // registration
-            List<Email> emails = client.getEmails("Bearer "+accessToken.getToken());
-            user = new User();
-            String name = userInfo.getString("name");
-            int firstSpace = name.indexOf(' ');
-            if(firstSpace != -1) {
-                user.firstName = name.substring(0, firstSpace);
-                user.lastName = name.substring(firstSpace+1);
-            } else {
-                user.firstName = name;
-            }
-            String userName = userInfo.getString("login");
-            if(User.findByUserName(userName) == null) {
-                user.userName = userName;
-            }
-            for (Email email : emails) {
-                if(email.primary) {
-                    user.email = email.email;
-                    break;
-                }
-            }
-            user.status = UserStatus.CONFIRMATION_REQUIRED;
-            user.authId = authId;
-            user.persist();
-            // go to registration
-            redirect(Register.class).confirmOidc(authId);
-        } else if(!user.isRegistered()) {
-            // user exists, but not fully registered yet
-            // go to registration
-            redirect(Register.class).confirmOidc(authId);
-        } else {
-            // login
+    /**
+     * Link to logout page
+     */
+    public TemplateInstance logoutFirst() {
+        return Templates.logoutFirst();
+    }
+
+    private User checkConfirmationCode(String confirmationCode) {
+        // can't use error reporting as those are query parameters and not form fields
+        if(StringUtils.isEmpty(confirmationCode)){
+            flash("message", "Missing confirmation code");
+            flash("messageType", "error");
             redirect(Application.class).index();
         }
-    }
-
-    @Transactional
-    public void facebookLoginSuccess() {
-        // something is coming
-        String authId = userInfo.getString("id");
-        User user = User.findByAuthId(authId);
-        if(user == null) {
-            // registration
-            user = new User();
-            user.firstName = userInfo.getString("first_name");
-            user.lastName = userInfo.getString("last_name");
-            user.email = userInfo.getString("email");
-            user.status = UserStatus.CONFIRMATION_REQUIRED;
-            user.authId = authId;
-            user.persist();
-            // go to registration
-            redirect(Register.class).confirmOidc(authId);
-        } else if(!user.isRegistered()) {
-            // user exists, but not fully registered yet
-            // go to registration
-            redirect(Register.class).confirmOidc(authId);
-        } else {
-            // login
+        User user = User.findForContirmation(confirmationCode);
+        if(user == null){
+            flash("message", "Invalid confirmation code");
+            flash("messageType", "error");
             redirect(Application.class).index();
         }
+        return user;
     }
 
+    @POST
+    public Response complete(@RestQuery String confirmationCode, 
+            @RestForm @NotBlank String userName, 
+            @RestForm @Length(min = 8) String password, 
+            @RestForm @Length(min = 8) String password2, 
+            @RestForm @NotBlank String firstName, 
+            @RestForm @NotBlank String lastName) {
+        checkLogoutFirst();
+        User user = checkConfirmationCode(confirmationCode);
 
-    @Transactional
-    public void oidcLoginSuccess() {
-        // something is coming
-        String authId = idToken.getName();
-        User user = User.findByAuthId(authId);
-        if(user == null) {
-            // registration
-            user = new User();
-            user.firstName = idToken.getClaim(Claims.given_name);
-            user.lastName = idToken.getClaim(Claims.family_name);
-            if(user.firstName == null && user.lastName == null) {
-                // MS has it in "name"
-                String name = idToken.getClaim("name");
-                if(name != null) {
-                    int firstSpace = name.indexOf(' ');
-                    if(firstSpace != -1) {
-                        user.firstName = name.substring(0, firstSpace);
-                        user.lastName = name.substring(firstSpace+1);
-                    } else {
-                        user.firstName = name;
-                    }
-                }                
-            }
-            String userName = idToken.getClaim(Claims.preferred_username);
-            if(userName != null && !userName.isBlank() && User.findByUserName(userName) == null) {
-                user.userName = userName;
-            }
-            user.email = idToken.getClaim(Claims.email);
-            user.status = UserStatus.CONFIRMATION_REQUIRED;
-            user.authId = authId;
-            user.persist();
-            // go to registration
-            redirect(Register.class).confirmOidc(authId);
-        } else if(!user.isRegistered()) {
-            // user exists, but not fully registered yet
-            // go to registration
-            redirect(Register.class).confirmOidc(authId);
-        } else {
-            // login
-            redirect(Application.class).index();
+        if(validationFailed())
+            confirm(confirmationCode);
+
+        // is it OIDC?
+        if(!user.isOidc()) {
+            validation.required("password", password);
+            validation.required("password2", password2);
+            validation.equals("password", password, password2);
         }
+
+        if(User.findRegisteredByUserName(userName) != null)
+            validation.addError("userName", "User name already taken");
+        if(validationFailed())
+            confirm(confirmationCode);
+
+        user.userName = userName;
+        if(!user.isOidc()) {
+            user.password = BcryptUtil.bcryptHash(password);
+        }
+        user.firstName = firstName;
+        user.lastName = lastName;
+        user.confirmationCode = null;
+        user.status = UserStatus.REGISTERED;
+
+        ResponseBuilder responseBuilder = Response.seeOther(Router.getURI(Login::welcome));
+        if(!user.isOidc()) {
+            NewCookie cookie = security.makeUserCookie(user);
+            responseBuilder.cookie(cookie);
+        }
+        return responseBuilder.build();
     }
 }
