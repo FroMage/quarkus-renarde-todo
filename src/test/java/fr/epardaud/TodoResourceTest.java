@@ -4,7 +4,15 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -20,6 +28,7 @@ import io.quarkiverse.renarde.oidc.test.MockGithubOidc;
 import io.quarkiverse.renarde.oidc.test.MockGoogleOidc;
 import io.quarkiverse.renarde.oidc.test.MockMicrosoftOidc;
 import io.quarkiverse.renarde.oidc.test.RenardeCookieFilter;
+import io.quarkiverse.renarde.util.Flash;
 import io.quarkiverse.renarde.util.JavaExtensions;
 import io.quarkus.mailer.Mail;
 import io.quarkus.mailer.MockMailbox;
@@ -29,6 +38,7 @@ import io.restassured.path.json.JsonPath;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 import io.restassured.response.ValidatableResponse;
+import io.smallrye.jwt.build.Jwt;
 
 @MockFacebookOidc
 @MockGoogleOidc
@@ -66,6 +76,76 @@ public class TodoResourceTest {
         .get("/Todos/index")
         .then()
         .statusCode(401);
+    }
+
+    @Test
+    public void testProtectedPageWithInvalidJwt() throws NoSuchAlgorithmException {
+        // canary: valid
+        String token = Jwt.issuer("https://example.com/issuer")
+                .upn("fromage")
+                .issuedAt(Instant.now())
+                .expiresIn(Duration.ofDays(10))
+                .innerSign().encrypt();
+        // valid
+        given()
+        .when()
+        .cookie("QuarkusUser", token)
+        .log().ifValidationFails()
+        .redirects().follow(false)
+        .get("/")
+        .then()
+        .log().ifValidationFails()
+        .statusCode(200);
+        // expired
+        token = Jwt.issuer("https://example.com/issuer")
+                .upn("fromage")
+                .issuedAt(Instant.now().minus(20, ChronoUnit.DAYS))
+                .expiresIn(Duration.ofDays(10))
+                .innerSign().encrypt();
+        assertRedirectWithMessage(token, "Login expired, you've been logged out");
+        // invalid issuer
+        token = Jwt.issuer("https://example.com/other-issuer")
+                .upn("fromage")
+                .issuedAt(Instant.now())
+                .expiresIn(Duration.ofDays(10))
+                .innerSign().encrypt();
+        assertRedirectWithMessage(token, "Invalid session (bad JWT), you've been logged out");
+        // invalid signature
+        KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
+        kpg.initialize(2048);
+        KeyPair kp = kpg.generateKeyPair();
+        token = Jwt.issuer("https://example.com/issuer")
+                .upn("fromage")
+                .issuedAt(Instant.now())
+                .expiresIn(Duration.ofDays(10))
+                .innerSign(kp.getPrivate()).encrypt(kp.getPublic());
+        assertRedirectWithMessage(token, "Invalid session (bad signature), you've been logged out");
+        // invalid user
+        token = Jwt.issuer("https://example.com/issuer")
+                .upn("cheesy")
+                .issuedAt(Instant.now())
+                .expiresIn(Duration.ofDays(10))
+                .innerSign().encrypt();
+        assertRedirectWithMessage(token, "Invalid user: cheesy");
+    }
+
+    private void assertRedirectWithMessage(String token, String message) {
+        // redirect with message
+        String flash = given()
+        .when()
+        .cookie("QuarkusUser", token)
+        .log().ifValidationFails()
+        .redirects().follow(false)
+        .get("/")
+        .then()
+        .log().ifValidationFails()
+        .statusCode(303)
+        // logout
+        .cookie("QuarkusUser", "")
+        .extract().cookie(Flash.FLASH_COOKIE_NAME);
+        Map<String, Object> data = Flash.decodeCookieValue(flash);
+        Assertions.assertTrue(data.containsKey("message"));
+        Assertions.assertEquals(message, data.get("message"));
     }
 
     @Test
