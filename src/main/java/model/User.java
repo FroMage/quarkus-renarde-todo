@@ -1,7 +1,6 @@
 package model;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import javax.persistence.Column;
@@ -9,7 +8,6 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
 import io.quarkiverse.renarde.oidc.RenardeUser;
@@ -38,7 +36,6 @@ public class User extends PanacheEntity implements RenardeUser {
 	@Enumerated(EnumType.STRING)
 	public UserStatus status;
 	
-	@Transient
 	public boolean isRegistered(){
 	    return status == UserStatus.REGISTERED;
 	}
@@ -57,7 +54,6 @@ public class User extends PanacheEntity implements RenardeUser {
         return userName;
     }
 
-    @Transient
     public boolean isOidc() {
         return tenantId != null;
     }
@@ -73,14 +69,6 @@ public class User extends PanacheEntity implements RenardeUser {
         return find("LOWER(userName) = ?1 AND status = ?2", username.toLowerCase(), UserStatus.REGISTERED).firstResult();
     }
 
-    public static User findRegisteredByAuthId(String tenantId, String authId) {
-        return find("tenantId = ?1 AND authId = ?2 AND status = ?3", tenantId, authId, UserStatus.REGISTERED).firstResult();
-    }
-
-    public static User findRegisteredByConfirmationCode(String confirmationCode) {
-        return find("confirmationCode = ?1 AND status = ?2", confirmationCode, UserStatus.REGISTERED).firstResult();
-    }
-
     public static User findByUserName(String username) {
         return find("LOWER(userName) = ?1", username.toLowerCase()).firstResult();
     }
@@ -88,14 +76,6 @@ public class User extends PanacheEntity implements RenardeUser {
     public static User findByAuthId(String tenantId, String authId) {
         return find("tenantId = ?1 AND authId = ?2", tenantId, authId).firstResult();
     }
-
-	public static List<User> registeredUsers() {
-		return find("status", UserStatus.REGISTERED).list();
-	}
-
-	public static long countRegisteredUsers() {
-		return count("status", UserStatus.REGISTERED);
-	}
 
     public static User findForContirmation(String confirmationCode) {
         return find("confirmationCode = ?1 AND status = ?2", confirmationCode, UserStatus.CONFIRMATION_REQUIRED).firstResult();

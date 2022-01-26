@@ -458,6 +458,10 @@ public class TodoResourceTest {
 
     private ValidatableResponse follow(String uri, RenardeCookieFilter cookieFilter) {
         do {
+            // make sure we turn any https into http, because some providers force https
+            if(uri.startsWith("https://")) {
+                uri = "http" + uri.substring(5);
+            }
             ValidatableResponse response = given()
                     .when()
                     .filter(cookieFilter)

@@ -3,9 +3,9 @@ package util;
 import javax.ws.rs.core.UriInfo;
 
 import io.quarkus.arc.Arc;
-import io.quarkus.qute.TemplateExtension;
+import io.quarkus.qute.TemplateGlobal;
 
-@TemplateExtension(namespace = "global")
+@TemplateGlobal
 public class Globals {
     public static String requestUrl() {
         return Arc.container().instance(UriInfo.class).get().getRequestUri().toASCIIString();

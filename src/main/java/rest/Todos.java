@@ -5,18 +5,22 @@ import java.util.List;
 
 import javax.validation.constraints.NotBlank;
 import javax.ws.rs.POST;
+import javax.ws.rs.Path;
 
 import org.jboss.resteasy.reactive.RestForm;
 import org.jboss.resteasy.reactive.RestPath;
 
+import io.quarkiverse.renarde.oidc.ControllerWithUser;
 import io.quarkus.qute.CheckedTemplate;
 import io.quarkus.qute.TemplateInstance;
 import io.quarkus.security.Authenticated;
+import io.smallrye.common.annotation.Blocking;
 import model.Todo;
 import model.User;
 
+@Blocking
 @Authenticated
-public class Todos extends ControllerWithUser {
+public class Todos extends ControllerWithUser<User> {
 
     @CheckedTemplate
     static class Templates {

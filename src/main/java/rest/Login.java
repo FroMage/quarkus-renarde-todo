@@ -15,6 +15,7 @@ import org.jboss.resteasy.reactive.RestForm;
 import org.jboss.resteasy.reactive.RestQuery;
 
 import email.Emails;
+import io.quarkiverse.renarde.oidc.ControllerWithUser;
 import io.quarkiverse.renarde.oidc.RenardeSecurity;
 import io.quarkiverse.renarde.router.Router;
 import io.quarkiverse.renarde.util.StringUtils;
@@ -22,10 +23,12 @@ import io.quarkus.elytron.security.common.BcryptUtil;
 import io.quarkus.qute.CheckedTemplate;
 import io.quarkus.qute.TemplateInstance;
 import io.quarkus.security.Authenticated;
+import io.smallrye.common.annotation.Blocking;
 import model.User;
 import model.UserStatus;
 
-public class Login extends ControllerWithUser {
+@Blocking
+public class Login extends ControllerWithUser<User> {
 
     @Inject
     RenardeSecurity security;
