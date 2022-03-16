@@ -16,7 +16,7 @@ public class Startup {
     public void onStartup(@Observes StartupEvent start) {
         System.err.println("Adding user fromage");
         User stef = new User();
-        stef.email = "stef@epardaud.fr";
+        stef.email = "fromage@example.com";
         stef.firstName = "Stef";
         stef.lastName = "Epardaud";
         stef.userName = "fromage";
