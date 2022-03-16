@@ -50,6 +50,9 @@ public class MyOidcSetup implements RenardeUserProvider, RenardeOidcHandler {
             user.authId = authId;
             
             user.email = security.getOidcEmail();
+            // workaround for Twitter
+            if(user.email == null)
+                user.email = "twitter@example.com";
             user.firstName = security.getOidcFirstName();
             user.lastName = security.getOidcLastName();
             user.userName = security.getOidcUserName();
