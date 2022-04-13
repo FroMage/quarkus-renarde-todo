@@ -1,26 +1,35 @@
 package rest;
 
+import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 
-import io.quarkiverse.renarde.Controller;
-import io.quarkus.qute.CheckedTemplate;
-import io.quarkus.qute.TemplateInstance;
+// import io.quarkus.qute.CheckedTemplate;
+// import io.quarkus.qute.TemplateInstance;
 
-public class Application extends Controller {
+@Path("")
+public class Application {
 
-    @CheckedTemplate
-    public static class Templates {
-        public static native TemplateInstance index();
-        public static native TemplateInstance about();
-    }
+    // @CheckedTemplate
+    // public static class Templates {
+    //     public static native TemplateInstance index();
+    //     public static native TemplateInstance about();
+    // }
 
-    @Path("/")
-    public TemplateInstance index(){
-        return Templates.index();
-    }
+    // @GET
+    // @Path("/")
+    // public TemplateInstance index(){
+    //     return Templates.index();
+    // }
 
-    @Path("/about")
-    public TemplateInstance about(){
-        return Templates.about();
+    // @GET
+    // @Path("/about")
+    // public TemplateInstance about(){
+    //     return Templates.about();
+    // }
+
+    @GET
+    @Path("/foo")
+    public String foo(){
+        return "FU STEF 222";
     }
 }
