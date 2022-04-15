@@ -1,0 +1,42 @@
+<button class="btn btn-primary" type="button" id="webauthn"><img src="/images/webauthn.svg" height="16px" title="Use WebAuthn instead of a password"/> WebAuthn Login</button>
+
+<!-- WebAuthn -->
+{#input name="webAuthnId" type="hidden"/}
+{#input name="webAuthnRawId" type="hidden"/}
+{#input name="webAuthnResponseClientDataJSON" type="hidden"/}
+{#input name="webAuthnResponseAuthenticatorData" type="hidden"/}
+{#input name="webAuthnResponseSignature" type="hidden"/}
+{#input name="webAuthnResponseUserHandle" type="hidden"/}
+{#input name="webAuthnType" type="hidden"/}
+
+<script type="text/javascript">
+const webAuthn = new WebAuthn({
+  callbackPath: '/q/webauthn/callback',
+  registerPath: '/q/webauthn/register',
+  loginPath: '/q/webauthn/login'
+});
+
+const loginButton = document.getElementById('webauthn');
+
+loginButton.onclick = () => {
+  requireField('username')
+    .then(name => webAuthn.loginOnly({ name: name }))
+    .then(body => {
+      document.getElementsByName('webAuthnId')[0].value = body.id;
+      document.getElementsByName('webAuthnRawId')[0].value = body.rawId;
+      document.getElementsByName('webAuthnResponseClientDataJSON')[0].value = body.response.clientDataJSON;
+      document.getElementsByName('webAuthnResponseAuthenticatorData')[0].value = body.response.authenticatorData;
+      document.getElementsByName('webAuthnResponseSignature')[0].value = body.response.signature;
+      document.getElementsByName('webAuthnResponseUserHandle')[0].value = body.response.userHandle;
+      document.getElementsByName('webAuthnType')[0].value = body.type;
+      document.getElementsByName('password')[0].disabled = true;
+    })
+    .catch(err => {
+      if(err instanceof Error) {
+        addValidationError(document.getElementsByName('username')[0], "invalid username");
+      }
+      console.log('registration failed');
+      console.error(err);
+    });
+};
+</script>

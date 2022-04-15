@@ -3,33 +3,27 @@ package rest;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 
-// import io.quarkus.qute.CheckedTemplate;
-// import io.quarkus.qute.TemplateInstance;
+import io.quarkiverse.renarde.Controller;
+import io.quarkus.qute.CheckedTemplate;
+import io.quarkus.qute.TemplateInstance;
+import io.smallrye.common.annotation.Blocking;
 
-@Path("")
-public class Application {
+@Blocking
+public class Application extends Controller{
 
-    // @CheckedTemplate
-    // public static class Templates {
-    //     public static native TemplateInstance index();
-    //     public static native TemplateInstance about();
-    // }
+    @CheckedTemplate
+    public static class Templates {
+        public static native TemplateInstance index();
+        public static native TemplateInstance about();
+    }
 
-    // @GET
-    // @Path("/")
-    // public TemplateInstance index(){
-    //     return Templates.index();
-    // }
+    @Path("/")
+    public TemplateInstance index(){
+        return Templates.index();
+    }
 
-    // @GET
-    // @Path("/about")
-    // public TemplateInstance about(){
-    //     return Templates.about();
-    // }
-
-    @GET
-    @Path("/foo")
-    public String foo(){
-        return "FU STEF 222";
+    @Path("/about")
+    public TemplateInstance about(){
+        return Templates.about();
     }
 }

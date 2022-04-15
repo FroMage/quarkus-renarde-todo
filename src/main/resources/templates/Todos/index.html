@@ -1,0 +1,55 @@
+{#include main.html }
+{#title}Your TODO list{/title}
+
+<table class="table">
+ <thead>
+  <th>ID</th>
+  <th>Task</th>
+  <th>Date</th>
+  <th>Actions</th>
+ </thead>
+ <tbody>
+  {#for todo in todos}
+   <tr {#if todo.done}class="table-secondary"{/if}>
+	<td>{todo.id}</td>
+	<td>
+		{#if todo.done}
+			<del>{todo.task}</del>
+		{#else}
+			{todo.task}
+		{/if}
+	</td>
+	<td>
+		Created: {todo.created.since}
+		{#if todo.done}
+			<br/>
+			Done: {todo.closed.since}
+		{/if}
+	</td>
+	<td>
+	    {#form uri:Todos.delete(todo.id)}
+			<button class="btn btn-danger">Delete</button>
+		{/form}
+	    {#form uri:Todos.done(todo.id)}
+			{#if todo.done}
+				<button class="btn btn-warning">Undo</button>
+			{#else}
+				<button class="btn btn-success">Done</button>
+			{/if}
+		{/form}
+	</td>
+   </tr>
+  {/for}
+  <tr>
+   <td colspan="3">
+    {#form uri:Todos.add()}
+	  {#formElement name="task" label="Add new task"}
+	    {#input name="task" placeholder="Type a task and press enter to add"/}
+	  {/formElement}
+	{/form}
+   </td>
+  </tr>
+  </tbody>
+</table>
+
+{/include}
