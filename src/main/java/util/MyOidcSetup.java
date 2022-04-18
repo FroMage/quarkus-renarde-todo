@@ -26,7 +26,7 @@ import rest.Login;
 
 @Blocking
 @ApplicationScoped
-public class MyOidcSetup implements RenardeOidcHandler, RenardeUserProvider {
+public class MyOidcSetup implements RenardeOidcHandler {
 
     @Inject
     RenardeSecurity security;
@@ -50,10 +50,10 @@ public class MyOidcSetup implements RenardeOidcHandler, RenardeUserProvider {
             user.firstname = security.getOidcFirstName();
             user.lastname = security.getOidcLastName();
             user.persist();
-            uri = Router.getURI(Login::completeRegistration, user.confirmationCode);
+            uri = Router.getURI(Login::confirm, user.confirmationCode);
         } else if(!user.isRegistered()) {
             // didn't finish registration
-            uri = Router.getURI(Login::completeRegistration, user.confirmationCode);
+            uri = Router.getURI(Login::confirm, user.confirmationCode);
         } else {
             // regular login
             flash.flash("message", "Welcome from OIDC via "+tenantId);
@@ -72,22 +72,12 @@ public class MyOidcSetup implements RenardeOidcHandler, RenardeUserProvider {
             uri = Router.getURI(Application::index);
         } else if(!user.isRegistered()) {
             // didn't finish registration
-            uri = Router.getURI(Login::completeRegistration, user.confirmationCode);
+            uri = Router.getURI(Login::confirm, user.confirmationCode);
         } else {
             // regular login
             flash.flash("message", "Welcome from OIDC via "+tenantId);
             uri = Router.getURI(Application::index);
         }
         throw new RedirectException(Response.seeOther(uri).build());
-
     }
-
-    @Override
-    public RenardeUser findUser(String tenantId, String authId) {
-        if(tenantId == null || tenantId.equals("manual"))
-            return User.findByUsername(authId);
-        else
-            return User.findByAuthId(tenantId, authId);
-    }
-    
 }

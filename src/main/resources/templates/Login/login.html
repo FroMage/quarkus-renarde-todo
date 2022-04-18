@@ -1,38 +1,26 @@
-{#include main.html }
-{#title}Login to the TODO app{/title}
+{#include main.html}
+{#title}Login{/title}
 {#moreScripts}
-    {#webAuthnScript/}
+ {#webAuthnScript /}
 {/moreScripts}
 
-<div class="row">
-  <div class="col-md-2">
-    {#fieldset legend="Login/Register"}
-	  {#oidc /}
-	{/fieldset}
-  </div>
-  <div class="col-md-5">
-    {#fieldset legend="Login"}
-      {#form uri:Login.doLogin()}
-	    {#formElement name="username" label="Username"}
-	      {#input name="username"/}
-      {/formElement}
-	  {#formElement name="password" label="Password" class="input-group"}
-	    {#input name="password" type="password"/}
-        {#webAuthnLoginButton/}
-	  {/formElement}
-		<button class="btn btn-primary">Login</button>
-	{/form}
-	{/fieldset}
-  </div>
-  <div class="col-md-5">
-    {#fieldset legend="Register"}
-      {#form uri:Login.doRegister()}
-	  {#formElement name="email" label="Email"}
-	    {#input name="email"/}
-	  {/formElement}
-		<button class="btn btn-primary">Register</button>
-	{/form}
-	{/fieldset}
-</div>
-</div>
+{#fieldset legend="Login"}
+ {#oidc /}
+{/fieldset}
+
+{#fieldset legend="Login"}
+ {#form uri:Login.doLogin()}
+  {#field name="username" label="User name"/}
+  {#field name="password" label="Password" type="webauthn-login"/}
+  <button class="btn btn-primary">Login</button>
+ {/form}
+{/fieldset}
+
+{#fieldset legend="Register"}
+ {#form uri:Login.register()}
+  {#field name="email" label="Email"/}
+  <button class="btn btn-primary">Register</button>
+ {/form}
+{/fieldset}
+
 {/include}

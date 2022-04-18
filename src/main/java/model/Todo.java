@@ -12,9 +12,8 @@ import io.quarkus.panache.common.Sort;
 @Entity
 public class Todo extends PanacheEntity {
     public String task;
+    public Date doneDate;
     public boolean done;
-    public Date created;
-    public Date closed;
     @ManyToOne
     public User user;
 

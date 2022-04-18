@@ -22,11 +22,9 @@ import model.User;
 @Authenticated
 @Blocking
 public class Todos extends ControllerWithUser<User> {
-
     @CheckedTemplate
     public static class Templates {
         public static native TemplateInstance index(List<Todo> todos);
-        
     }
 
     public TemplateInstance index(){
@@ -40,9 +38,8 @@ public class Todos extends ControllerWithUser<User> {
             index();
         }
         Todo todo = new Todo();
-        todo.task = task;
-        todo.created = new Date();
         todo.user = getUser();
+        todo.task = task;
         todo.persist();
         index();
     }
@@ -61,9 +58,7 @@ public class Todos extends ControllerWithUser<User> {
         notFoundIfNull(todo);
         todo.done = !todo.done;
         if(todo.done)
-            todo.closed = new Date();
-        else
-            todo.closed = null;
+            todo.doneDate = new Date();
         index();
     }
 }

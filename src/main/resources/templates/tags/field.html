@@ -1,0 +1,15 @@
+<label class="form-label" for="{name}">{label}</label>
+<div class="mb-3 {class??} {type.startsWith('webauthn-') ? 'input-group' : ''}">
+    {#if type?? == "webauthn-registration"}
+      {#input name=name type='password' placeholder=placeholder?? id=id?? value=value??/}
+      {#webAuthnRegistrationButton/}
+    {#else if type?? == "webauthn-login"}
+      {#input name=name type='password' placeholder=placeholder?? id=id?? value=value??/}
+      {#webAuthnLoginButton/}
+    {#else}
+      {#input name=name type=type?? placeholder=placeholder?? id=id?? value=value??/}
+    {/if}
+    {#ifError name}
+        <span class="invalid-feedback">​{#error name/}</span>​
+    {/ifError}
+</div>

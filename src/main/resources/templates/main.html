@@ -21,17 +21,17 @@
               <span class="navbar-toggler-icon"></span>
             </button>
             {#if inject:user}
-              {#user inject:user/}
+             {#user inject:user/}
             {/if}
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
               <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                  {#menuItem uri:Application.about() title="About"/}
-                  {#if inject:user}
-                    {#menuItem uri:Todos.index() title="Todos"/}
-                    {#menuItem uri:Login.logout() title="Logout"/}
-                  {#else}
-                    {#menuItem uri:Login.login() title="Login"/}
-                  {/if}
+                {#menuItem uri:Application.about() title="About"/}
+                {#if inject:user}
+                  {#menuItem uri:Todos.index() title="Todos"/}
+                  {#menuItem uri:Login.logout() title="Logout"/}
+                {#else}
+                  {#menuItem uri:Login.login() title="Login"/}
+                {/if}
               </ul>
             </div>
           </div>

@@ -8,13 +8,11 @@ import javax.ws.rs.BeanParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
 
 import org.jboss.resteasy.reactive.RestForm;
 import org.jboss.resteasy.reactive.RestPath;
 import org.jboss.resteasy.reactive.RestQuery;
 
-import email.Emails;
 import io.quarkiverse.renarde.Controller;
 import io.quarkiverse.renarde.oidc.RenardeSecurity;
 import io.quarkiverse.renarde.router.Router;
@@ -41,28 +39,19 @@ public class Login extends Controller {
     public static class Templates {
         public static native TemplateInstance login();
 
-        public static native TemplateInstance doRegister(String email);
-
-        public static native TemplateInstance completeRegistration(User user);
+        public static native TemplateInstance register(User user);
+        public static native TemplateInstance confirm(User user);
     }
 
     public TemplateInstance login(){
         return Templates.login();
     }
 
-    public Response logout(){
-        flash("message", "Good bye!");
-        return security.makeLogoutResponse();
-    }
-
     @POST
     public Response doLogin(@NotBlank @RestForm String username,
-                        @RestForm String password,
-                        @BeanParam WebAuthnLoginResponse webauthn,
-                        RoutingContext ctx){
-        if(validationFailed()){
-            login();
-        }
+    @RestForm String password,
+    @BeanParam WebAuthnLoginResponse webauthn,
+    RoutingContext ctx){
         if(!webauthn.isSet()){
             validation.required("password", password);
         }
@@ -70,96 +59,76 @@ public class Login extends Controller {
             login();
         }
         User user = User.findByUsername(username);
-        if(user == null){
-            validation.addError("username", "Unknown user");
+        if(user == null || (!webauthn.isSet() && !BcryptUtil.matches(password, user.password))){
+            validation.addError("username", "Invalid user");
             prepareForErrorRedirect();
             login();
         }
         if(webauthn.isSet()){
             Authenticator auth = webAuthnSecurity.login(webauthn, ctx).await().indefinitely();
             user.webAuthnCredential.counter = auth.getCounter();
-        } else if(!BcryptUtil.matches(password, user.password)){
-            validation.addError("username", "Unknown user");
-            prepareForErrorRedirect();
-            login();
         }
-        NewCookie userCookie = security.makeUserCookie(user);
-        flash("message", "Welcome home!");
-        return Response.seeOther(Router.getURI(Application::index)).cookie(userCookie).build();
+        NewCookie cookie = security.makeUserCookie(user);
+        return Response.seeOther(Router.getURI(Application::index)).cookie(cookie).build();
+    }
+
+    public Response logout(){
+        return security.makeLogoutResponse();
     }
 
     @POST
-    public TemplateInstance doRegister(@NotBlank @RestForm String email){
-        if(validationFailed()){
-            login();
-        }
-        User user = User.findByEmail(email);
-        if(user != null){
-            validation.addError("email", "User already exists");
-            prepareForErrorRedirect();
-            login();
-        }
-        user = new User();
+    public TemplateInstance register(@NotBlank @RestForm String email){
+        User user = new User();
         user.email = email;
         user.confirmationCode = UUID.randomUUID().toString();
         user.persist();
-        Emails.verify(user);
-        return Templates.doRegister(email);
+        Emails.register(user);
+        return Templates.register(user);
     }
 
-    public TemplateInstance completeRegistration(@RestQuery String confirmationCode){
-        if(confirmationCode == null){
-            flash("message", "Invalid confirmation code");
-            redirect(Application.class).index();
-        }
-        User user = User.findByConfirmationCode(confirmationCode);
-        if(user == null
-           || !confirmationCode.equals(confirmationCode)){
-            flash("message", "Invalid confirmation code");
-            redirect(Application.class).index();
-        }
-        return Templates.completeRegistration(user);
+    public TemplateInstance confirm(@RestQuery String confirmationCode){
+        User user = User.find("confirmationCode", confirmationCode).firstResult();
+        return Templates.confirm(user);
     }
 
     @POST
-    public Response complete(@NotBlank @RestPath String confirmationCode,
+    public Response doConfirm(
+        @NotBlank @RestPath String confirmationCode,
+        @NotBlank @RestForm String username,
     @NotBlank @RestForm String firstname,
     @NotBlank @RestForm String lastname,
-    @NotBlank @RestForm String username,
     @RestForm String password1,
     @RestForm String password2,
     @BeanParam WebAuthnRegisterResponse webauthn,
     RoutingContext ctx){
         if(validationFailed()){
-            completeRegistration(confirmationCode);
+            confirm(confirmationCode);
         }
-        User user = User.findByConfirmationCode(confirmationCode);
+        User user = User.find("confirmationCode", confirmationCode).firstResult();
         notFoundIfNull(user);
-        if(user.authId == null && !webauthn.isSet()){
+
+        if(!webauthn.isSet() && user.authId == null){
             validation.required("password1", password1);
             validation.required("password2", password2);
-            validation.equals("password1", password1, password2);
-        }
-        User otherUser = User.findByUsername(username);
-        if(otherUser != null){
-            validation.addError("username", "User name already taken");
+            validation.equals("password", password1, password2);
         }
         if(validationFailed()){
-            completeRegistration(confirmationCode);
+            confirm(confirmationCode);
         }
-        user.username = username;
+
         user.firstname = firstname;
         user.lastname = lastname;
+        user.username = username;
         if(webauthn.isSet()){
             Authenticator auth = webAuthnSecurity.register(webauthn, ctx).await().indefinitely();
-            WebAuthnCredential creds = new WebAuthnCredential(auth, user);
-            creds.persist();
-        } else if(user.authId == null){
+            user.webAuthnCredential = new WebAuthnCredential(auth, user);
+            user.webAuthnCredential.persist();
+        }else if(user.authId == null){
             user.password = BcryptUtil.bcryptHash(password1);
         }
         user.confirmationCode = null;
-        flash("message", "Account created, welcome!");
-        NewCookie userCookie = security.makeUserCookie(user);
-        return Response.seeOther(Router.getURI(Application::index)).cookie(userCookie).build();
-   }
+        NewCookie cookie = security.makeUserCookie(user);
+        flash("message", "Welcome!");
+        return Response.seeOther(Router.getURI(Application::index)).cookie(cookie).build();
+    }
 }
