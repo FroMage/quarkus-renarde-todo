@@ -1,4 +1,4 @@
-package rest;
+package email;
 
 import io.quarkus.mailer.MailTemplate.MailTemplateInstance;
 import io.quarkus.qute.CheckedTemplate;
@@ -10,8 +10,7 @@ public class Emails {
         public static native MailTemplateInstance register(User user);
     }
 
-    public static void register(User user) {
-        Templates.register(user).to(user.email).from("todo@example.com").send().await().indefinitely();
+    public static void register(User user){
+        Templates.register(user).from("stef@example.com").to(user.email).send().await().indefinitely();
     }
-
 }

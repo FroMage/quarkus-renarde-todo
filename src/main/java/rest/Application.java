@@ -12,13 +12,13 @@ public class Application extends Controller {
 
     @CheckedTemplate
     public static class Templates {
-        public static native TemplateInstance index(String param);
+        public static native TemplateInstance index(String name);
         public static native TemplateInstance about();
     }
 
     @Path("/")
     public TemplateInstance index(){
-        return Templates.index("Devoxx");
+        return Templates.index("stef");
     }
 
     @Path("/about")

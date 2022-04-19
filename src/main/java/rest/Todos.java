@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.validation.constraints.NotBlank;
 import javax.ws.rs.POST;
+import javax.ws.rs.Path;
 
 import org.jboss.resteasy.reactive.RestForm;
 import org.jboss.resteasy.reactive.RestPath;
@@ -22,26 +23,15 @@ import model.User;
 @Authenticated
 @Blocking
 public class Todos extends ControllerWithUser<User> {
+
     @CheckedTemplate
     public static class Templates {
         public static native TemplateInstance index(List<Todo> todos);
     }
 
     public TemplateInstance index(){
-        List<Todo> todos = Todo.findByUser(getUser());
+        List<Todo> todos = Todo.forUser(getUser());
         return Templates.index(todos);
-    }
-
-    @POST
-    public void add(@NotBlank @RestForm String task){
-        if(validationFailed()){
-            index();
-        }
-        Todo todo = new Todo();
-        todo.user = getUser();
-        todo.task = task;
-        todo.persist();
-        index();
     }
 
     @POST
@@ -59,6 +49,20 @@ public class Todos extends ControllerWithUser<User> {
         todo.done = !todo.done;
         if(todo.done)
             todo.doneDate = new Date();
+        else
+            todo.doneDate = null;
+        index();
+    }
+
+    @POST
+    public void add(@NotBlank @RestForm String task){
+        if(validationFailed()){
+            index();
+        }
+        Todo todo = new Todo();
+        todo.user = getUser();
+        todo.task = task;
+        todo.persist();
         index();
     }
 }

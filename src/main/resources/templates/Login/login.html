@@ -1,26 +1,18 @@
 {#include main.html}
-{#title}Login{/title}
-{#moreScripts}
- {#webAuthnScript /}
-{/moreScripts}
+	{#title}Login{/title}
 
-{#fieldset legend="Login"}
- {#oidc /}
-{/fieldset}
+    {#fieldset legend="Login"}
+    	{#form uri:Login.doLogin()}
+	        {#field label="Username" name="username"/}
+	        {#field label="Password" name="password" type="password"/}
+     	    <button class="btn btn-primary">Login</button>
+	    {/form}
+    {/fieldset}
 
-{#fieldset legend="Login"}
- {#form uri:Login.doLogin()}
-  {#field name="username" label="User name"/}
-  {#field name="password" label="Password" type="webauthn-login"/}
-  <button class="btn btn-primary">Login</button>
- {/form}
-{/fieldset}
-
-{#fieldset legend="Register"}
- {#form uri:Login.register()}
-  {#field name="email" label="Email"/}
-  <button class="btn btn-primary">Register</button>
- {/form}
-{/fieldset}
-
+    {#fieldset legend="Register"}
+    	{#form uri:Login.register()}
+	        {#field label="Email" name="email"/}
+     	    <button class="btn btn-primary">Register</button>
+	    {/form}
+    {/fieldset}
 {/include}

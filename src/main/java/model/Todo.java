@@ -12,12 +12,12 @@ import io.quarkus.panache.common.Sort;
 @Entity
 public class Todo extends PanacheEntity {
     public String task;
-    public Date doneDate;
     public boolean done;
+    public Date doneDate;
     @ManyToOne
     public User user;
 
-    public static List<Todo> findByUser(User user) {
+    public static List<Todo> forUser(User user){
         return list("user", Sort.by("id"), user);
     }
 }

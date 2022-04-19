@@ -12,37 +12,27 @@ import io.smallrye.common.annotation.Blocking;
 import model.Todo;
 import model.User;
 
-@ApplicationScoped
 @Blocking
+@ApplicationScoped
 public class Startup {
     @Transactional
     public void start(@Observes StartupEvent evt){
         User user = new User();
-        user.firstname = "stef";
-        user.lastname = "epardaud";
-        user.username = "FroMage";
-        user.email = "stef@epardaud.fr";
+        user.username = "fromage";
         user.password = BcryptUtil.bcryptHash("1q2w3e4r");
+        user.email = "stef@epardaud.fr";
         user.persist();
 
-        User user2 = new User();
-        user2.firstname = "stef";
-        user2.lastname = "epardaud";
-        user2.username = "FroMage2";
-        user2.email = "stef@epardaud.fr";
-        user2.password = BcryptUtil.bcryptHash("1q2w3e4r");
-        user2.persist();
-
         Todo todo = new Todo();
+        todo.task = "Faire pres pour Devoxx";
         todo.user = user;
-        todo.task = "Preparer talk devoxx";
         todo.persist();
 
         todo = new Todo();
-        todo.user = user;
-        todo.task = "Venir a Paris";
+        todo.task = "Venir à Devoxx";
         todo.done = true;
         todo.doneDate = new Date();
+        todo.user = user;
         todo.persist();
     }
 }

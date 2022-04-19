@@ -1,0 +1,10 @@
+{#include main.html}
+	{#title}Complete registration{/title}
+
+    	{#form uri:Login.doComplete(user.confirmationCode)}
+	        {#field label="Username" name="username"/}
+	        {#field label="Password" name="password1" type="password"/}
+	        {#field label="Repeat Password" name="password2" type="password"/}
+     	    <button class="btn btn-primary">Complete</button>
+	    {/form}
+{/include}
