@@ -20,9 +20,9 @@ import io.quarkus.security.webauthn.WebAuthnUserProvider;
 import io.smallrye.common.annotation.Blocking;
 import io.smallrye.mutiny.Uni;
 import io.vertx.ext.auth.webauthn.Authenticator;
-// import model.User;
-// import rest.Application;
-// import rest.Login;
+import model.User;
+import rest.Application;
+import rest.Login;
 
 @Blocking
 @ApplicationScoped
@@ -37,47 +37,47 @@ public class MyOidcSetup implements RenardeOidcHandler {
     @Transactional
     @Override
     public void oidcSuccess(String tenantId, String authId) {
-        // User user = User.findByAuthId(tenantId, authId);
-        // URI uri;
-        // if(user == null){
-        //     // new user
-        //     user = new User();
-        //     user.authId = authId;
-        //     user.tenantId = tenantId;
-        //     user.confirmationCode = UUID.randomUUID().toString();
-        //     user.email = security.getOidcEmail();
-        //     user.username = security.getOidcUserName();
-        //     user.firstname = security.getOidcFirstName();
-        //     user.lastname = security.getOidcLastName();
-        //     user.persist();
-        //     uri = Router.getURI(Login::confirm, user.confirmationCode);
-        // } else if(!user.isRegistered()) {
-        //     // didn't finish registration
-        //     uri = Router.getURI(Login::confirm, user.confirmationCode);
-        // } else {
-        //     // regular login
-        //     flash.flash("message", "Welcome from OIDC via "+tenantId);
-        //     uri = Router.getURI(Application::index);
-        // }
-        // throw new RedirectException(Response.seeOther(uri).build());
+        User user = User.findByAuthId(tenantId, authId);
+        URI uri;
+        if(user == null){
+            // new user
+            user = new User();
+            user.authId = authId;
+            user.tenantId = tenantId;
+            user.confirmationCode = UUID.randomUUID().toString();
+            user.email = security.getOidcEmail();
+            user.username = security.getOidcUserName();
+            user.firstname = security.getOidcFirstName();
+            user.lastname = security.getOidcLastName();
+            user.persist();
+            uri = Router.getURI(Login::complete, user.confirmationCode);
+        } else if(!user.isRegistered()) {
+            // didn't finish registration
+            uri = Router.getURI(Login::complete, user.confirmationCode);
+        } else {
+            // regular login
+            flash.flash("message", "Welcome from OIDC via "+tenantId);
+            uri = Router.getURI(Application::index);
+        }
+        throw new RedirectException(Response.seeOther(uri).build());
     }
 
     @Transactional
     @Override
     public void loginWithOidcSession(String tenantId, String authId) {
-        // User user = User.findByAuthId(tenantId, authId);
-        // URI uri;
-        // if(user == null){
-        //     flash.flash("message", "Invalid user");
-        //     uri = Router.getURI(Application::index);
-        // } else if(!user.isRegistered()) {
-        //     // didn't finish registration
-        //     uri = Router.getURI(Login::confirm, user.confirmationCode);
-        // } else {
-        //     // regular login
-        //     flash.flash("message", "Welcome from OIDC via "+tenantId);
-        //     uri = Router.getURI(Application::index);
-        // }
-        // throw new RedirectException(Response.seeOther(uri).build());
+        User user = User.findByAuthId(tenantId, authId);
+        URI uri;
+        if(user == null){
+            flash.flash("message", "Invalid user");
+            uri = Router.getURI(Application::index);
+        } else if(!user.isRegistered()) {
+            // didn't finish registration
+            uri = Router.getURI(Login::complete, user.confirmationCode);
+        } else {
+            // regular login
+            flash.flash("message", "Welcome from OIDC via "+tenantId);
+            uri = Router.getURI(Application::index);
+        }
+        throw new RedirectException(Response.seeOther(uri).build());
     }
 }

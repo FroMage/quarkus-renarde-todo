@@ -17,7 +17,8 @@ public class Todo extends PanacheEntity {
     @ManyToOne
     public User user;
 
-    public static List<Todo> forUser(User user){
+    public static List<Todo> all(User user){
         return list("user", Sort.by("id"), user);
     }
+
 }

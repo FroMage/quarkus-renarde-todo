@@ -46,17 +46,17 @@
     <dependency>
       <groupId>io.quarkiverse.renarde</groupId>
       <artifactId>quarkus-renarde</artifactId>
-      <version>1.0.0-SNAPSHOT</version>
+      <version>1.0.0</version>
     </dependency>
       <dependency>
         <groupId>io.quarkiverse.renarde</groupId>
         <artifactId>quarkus-renarde-oidc</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>1.0.0</version>
       </dependency>
       <dependency>
         <groupId>io.quarkiverse.renarde</groupId>
         <artifactId>quarkus-renarde-oidc-tests</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>1.0.0</version>
       </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>

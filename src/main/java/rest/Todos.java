@@ -5,14 +5,12 @@ import java.util.List;
 
 import javax.validation.constraints.NotBlank;
 import javax.ws.rs.POST;
-import javax.ws.rs.Path;
 
 import org.jboss.resteasy.reactive.RestForm;
 import org.jboss.resteasy.reactive.RestPath;
 
 import io.quarkiverse.renarde.Controller;
 import io.quarkiverse.renarde.oidc.ControllerWithUser;
-import io.quarkus.panache.common.Sort;
 import io.quarkus.qute.CheckedTemplate;
 import io.quarkus.qute.TemplateInstance;
 import io.quarkus.security.Authenticated;
@@ -30,7 +28,7 @@ public class Todos extends ControllerWithUser<User> {
     }
 
     public TemplateInstance index(){
-        List<Todo> todos = Todo.forUser(getUser());
+        List<Todo> todos = Todo.all(getUser());
         return Templates.index(todos);
     }
 

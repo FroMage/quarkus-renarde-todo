@@ -68,34 +68,34 @@ public class WebAuthnCredential extends PanacheEntityBase {
     public String fmt;
     
     // this is the owning side
-    // @OneToOne
-    // public User user;
+    @OneToOne
+    public User user;
 
     public WebAuthnCredential() {
     }
     
-    // public WebAuthnCredential(Authenticator authenticator, User user) {
-    //     aaguid = authenticator.getAaguid();
-    //     if(authenticator.getAttestationCertificates() != null)
-    //         alg = authenticator.getAttestationCertificates().getAlg();
-    //     counter = authenticator.getCounter();
-    //     credID = authenticator.getCredID();
-    //     fmt = authenticator.getFmt();
-    //     publicKey = authenticator.getPublicKey();
-    //     type = authenticator.getType();
-    //     userName = authenticator.getUserName();
-    //     if(authenticator.getAttestationCertificates() != null
-    //             && authenticator.getAttestationCertificates().getX5c() != null) {
-    //         for (String x5c : authenticator.getAttestationCertificates().getX5c()) {
-    //             WebAuthnCertificate cert = new WebAuthnCertificate();
-    //             cert.x5c = x5c;
-    //             cert.webAuthnCredential = this;
-    //             this.x5c.add(cert);
-    //         }
-    //     }
-    //     user.webAuthnCredential = this;
-    //     this.user = user;
-    // }
+    public WebAuthnCredential(Authenticator authenticator, User user) {
+        aaguid = authenticator.getAaguid();
+        if(authenticator.getAttestationCertificates() != null)
+            alg = authenticator.getAttestationCertificates().getAlg();
+        counter = authenticator.getCounter();
+        credID = authenticator.getCredID();
+        fmt = authenticator.getFmt();
+        publicKey = authenticator.getPublicKey();
+        type = authenticator.getType();
+        userName = authenticator.getUserName();
+        if(authenticator.getAttestationCertificates() != null
+                && authenticator.getAttestationCertificates().getX5c() != null) {
+            for (String x5c : authenticator.getAttestationCertificates().getX5c()) {
+                WebAuthnCertificate cert = new WebAuthnCertificate();
+                cert.x5c = x5c;
+                cert.webAuthnCredential = this;
+                this.x5c.add(cert);
+            }
+        }
+        user.webAuthnCredential = this;
+        this.user = user;
+    }
 
     public static List<WebAuthnCredential> findByUserId(String userId) {
         return list("userName", userId);

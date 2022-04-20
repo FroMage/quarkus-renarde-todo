@@ -12,6 +12,7 @@
         <script src="/webjars/bootstrap/js/bootstrap.min.js" type="text/javascript" charset="UTF-8"></script>
         <script src="/javascripts/main.js" type="text/javascript" charset="UTF-8"></script>
         {#insert moreScripts /}
+        {#webAuthnScript /}
     </head>
     <body>
         <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
@@ -25,12 +26,12 @@
             {/if}
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
               <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-              {#if inject:user}
-                {#menuItem uri:Todos.index() title="Todos"/}
-                {#menuItem uri:Login.logout() title="Logout"/}
-              {#else}
-                {#menuItem uri:Login.login() title="Login"/}
-              {/if}
+                {#if inject:user}
+                  {#menuItem uri:Todos.index() title="Todos"/}
+                  {#menuItem uri:Login.logout() title="Logout"/}
+                {#else}
+                  {#menuItem uri:Login.login() title="Login"/}
+                {/if}
                 {#menuItem uri:Application.about() title="About"/}
               </ul>
             </div>

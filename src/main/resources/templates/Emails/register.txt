@@ -1,0 +1,5 @@
+{#include email.txt}
+	{#title}Confirm{/title}
+
+	Please go to {uriabs:Login.complete(user.confirmationCode)} to register.
+{/include}

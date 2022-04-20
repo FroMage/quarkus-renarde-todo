@@ -1,3 +1,11 @@
 <span class="user-link" title="{it.username}">
 {#gravatar it.email size=20 default='mm' /}
-{it.username}</span>
+{it.username}
+{#if it.oidc}
+  <i class="bi bi-shield-check"></i>
+{#else if it.webAuthnCredential}
+  <i class="bi bi-fingerprint"></i>
+{#else}
+  <i class="bi bi-lock"></i>
+{/if}
+</span>
