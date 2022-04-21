@@ -2,13 +2,11 @@
 	{#title}Complete registration{/title}
 
     {#form uri:Login.doComplete(user.confirmationCode)}
-	   {#field label="Username" name="username" value=user.username/}
-	   {#field label="First name" name="firstname" value=user.firstname/}
-	   {#field label="Last name" name="lastname" value=user.lastname/}
-	   {#if !user.oidc}
-			{#field label="Password" name="password1" type="webauthn-registration"/}
+	   	{#field label="Username" name="username" value=user.username/}
+	   	{#field label="First name" name="firstname" value=user.firstname/}
+	   	{#field label="Last name" name="lastname" value=user.lastname/}
+			{#field label="Password" name="password1" type="password"/}
 			{#field label="Repeat Password" name="password2" type="password"/}
-		{/if}
     	<button class="btn btn-primary">Complete</button>
 	{/form}
 {/include}

@@ -93,7 +93,7 @@ public class WebAuthnCredential extends PanacheEntityBase {
                 this.x5c.add(cert);
             }
         }
-        user.webAuthnCredential = this;
+        // user.webAuthnCredential = this;
         this.user = user;
     }
 

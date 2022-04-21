@@ -22,11 +22,11 @@ public class User extends PanacheEntity implements RenardeUser {
     public String email;
     public String confirmationCode;
 
-    public String tenantId;
-    public String authId;
+    // public String tenantId;
+    // public String authId;
 
-    @OneToOne(mappedBy = "user")
-    public WebAuthnCredential webAuthnCredential;
+    // @OneToOne(mappedBy = "user")
+    // public WebAuthnCredential webAuthnCredential;
 
     @Override
     public Set<String> getRoles() {
@@ -43,10 +43,10 @@ public class User extends PanacheEntity implements RenardeUser {
         return confirmationCode == null;
     }
 
-    @Transient
-    public boolean isOidc(){
-        return tenantId != null;
-    }
+    // @Transient
+    // public boolean isOidc(){
+    //     return tenantId != null;
+    // }
 
     public static User findByUsername(String username) {
         return find("username", username).firstResult();
@@ -56,8 +56,8 @@ public class User extends PanacheEntity implements RenardeUser {
         return find("confirmationCode", confirmationCode).firstResult();
     }
 
-    public static User findByAuthId(String tenantId, String authId) {
-        return find("tenantId = ?1 and authId = ?2", tenantId, authId).firstResult();
-    }
+    // public static User findByAuthId(String tenantId, String authId) {
+    //     return find("tenantId = ?1 and authId = ?2", tenantId, authId).firstResult();
+    // }
     
 }
