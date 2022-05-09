@@ -7,6 +7,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
@@ -22,6 +23,9 @@ public class User extends PanacheEntity implements RenardeUser {
 	@Column(unique = true)
 	public String userName;
     public String password;
+    // non-owning side, so we can add more credentials later
+    @OneToOne(mappedBy = "user")
+    public WebAuthnCredential webAuthnCredential;
 	public String firstName;
 	public String lastName;
 	public boolean isAdmin;
@@ -58,10 +62,22 @@ public class User extends PanacheEntity implements RenardeUser {
         return tenantId != null;
     }
 
+    private boolean isWebAuthn() {
+        return webAuthnCredential != null;
+    }
+
+    public String getIconType() {
+        if(isOidc())
+            return "shield-check";
+        if(isWebAuthn())
+            return "fingerprint";
+        return "shield-lock";
+    }
+    
 	//
 	// Helpers
 
-	public static User findUnconfirmedByEmail(String email) {
+    public static User findUnconfirmedByEmail(String email) {
 		return find("LOWER(email) = ?1 AND status = ?2", email.toLowerCase(), UserStatus.CONFIRMATION_REQUIRED).firstResult();
 	}
 

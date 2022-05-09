@@ -10,9 +10,9 @@ import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import javax.inject.Inject;
 
@@ -34,11 +34,16 @@ import io.quarkus.mailer.Mail;
 import io.quarkus.mailer.MockMailbox;
 import io.quarkus.test.common.http.TestHTTPResource;
 import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.security.webauthn.WebAuthnEndpointHelper;
+import io.quarkus.test.security.webauthn.WebAuthnHardware;
+import io.restassured.filter.Filter;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 import io.restassured.response.ValidatableResponse;
+import io.restassured.specification.RequestSpecification;
 import io.smallrye.jwt.build.Jwt;
+import io.vertx.core.json.JsonObject;
 
 @MockFacebookOidc
 @MockGoogleOidc
@@ -150,18 +155,83 @@ public class TodoResourceTest {
 
     @Test
     public void testManualRegistration() {
+        String confirmationCode = register("manual");
+        
+        RenardeCookieFilter cookieFilter = new RenardeCookieFilter();
+        completeRegistration(confirmationCode, cookieFilter, "manual", "shield-lock", request -> {
+            request
+            .formParam("userName", "manual")
+            .formParam("password", "1q2w3e4r")
+            .formParam("password2", "1q2w3e4r")
+            .formParam("firstName", "Stef")
+            .formParam("lastName", "Epardaud");
+        });
+    }
+
+    @Test
+    public void testWebAuthnRegistration() {
+        String confirmationCode = register("webauthn");
+
+        RenardeCookieFilter cookieFilter = new RenardeCookieFilter();
+        WebAuthnHardware token = new WebAuthnHardware();
+        String challenge = WebAuthnEndpointHelper.invokeRegistration("webauthn", cookieFilter);
+        
+        JsonObject registrationJson = token.makeRegistrationJson(challenge);
+        
+        completeRegistration(confirmationCode, cookieFilter, "webauthn", "fingerprint", request -> {
+            WebAuthnEndpointHelper.addWebAuthnRegistrationFormParameters(request, registrationJson);
+            request
+            .formParam("userName", "webauthn")
+            .formParam("firstName", "Stef")
+            .formParam("lastName", "Epardaud");
+        });
+        
+        // now try logging in
+        challenge = WebAuthnEndpointHelper.invokeLogin("webauthn", cookieFilter);
+        
+        JsonObject loginJson = token.makeLoginJson(challenge);
+        testManualLogin(cookieFilter, "webauthn", "fingerprint", request -> {
+            WebAuthnEndpointHelper.addWebAuthnLoginFormParameters(request, loginJson);
+            request
+            .formParam("userName", "webauthn");
+        });
+    }
+
+    private void completeRegistration(String confirmationCode, Filter cookieFilter, String userName, String icon, Consumer<RequestSpecification> completeCustomiser) {
+        // confirm form action
+        RequestSpecification completeRequest = given()
+        .when()
+        .queryParam("confirmationCode", confirmationCode);
+        
+        completeCustomiser.accept(completeRequest);
+        
+        completeRequest
+        .log().ifValidationFails()
+        .filter(cookieFilter)
+        .redirects().follow(false)
+        .post("/Login/complete")
+        .then()
+        .log().ifValidationFails()
+        .statusCode(303)
+        .cookie("QuarkusUser")
+        .header("Location", url+"Login/welcome");
+
+        testLoggedIn(userName, icon, cookieFilter);
+    }
+
+    private String register(String userName) {
         // register email
         given()
         .when()
-        .formParam("email", "manual@example.com")
+        .formParam("email", userName+"@example.com")
         .post("/Login/register")
         .then()
         .statusCode(200)
         .body("html.head.title", is("Check your email for confirmation"))
-        .body(containsString("An email has been sent to <b>manual@example.com</b>"));
+        .body(containsString("An email has been sent to <b>"+userName+"@example.com</b>"));
 
         // get the confirmation email
-        List<Mail> mails = mailbox.getMessagesSentTo("manual@example.com");
+        List<Mail> mails = mailbox.getMessagesSentTo(userName+"@example.com");
         Assertions.assertEquals(1, mails.size());
         Mail mail = mails.get(0);
         Assertions.assertNotNull(mail.getText());
@@ -184,27 +254,11 @@ public class TodoResourceTest {
         .then()
         .statusCode(200)
         .body("html.head.title", is("Complete registration"));
+        
+        return confirmationCode;
+    }
 
-        // confirm form action
-        RenardeCookieFilter cookieFilter = new RenardeCookieFilter();
-        given()
-        .when()
-        .queryParam("confirmationCode", confirmationCode)
-        .formParam("userName", "asd")
-        .formParam("password", "1q2w3e4r")
-        .formParam("password2", "1q2w3e4r")
-        .formParam("firstName", "Stef")
-        .formParam("lastName", "Epardaud")
-        .log().ifValidationFails()
-        .filter(cookieFilter)
-        .redirects().follow(false)
-        .post("/Login/complete")
-        .then()
-        .log().ifValidationFails()
-        .statusCode(303)
-        .cookie("QuarkusUser")
-        .header("Location", url+"Login/welcome");
-
+    private void testLoggedIn(String userName, String icon, Filter cookieFilter) {
         // welcome page
         given()
         .when()
@@ -214,11 +268,11 @@ public class TodoResourceTest {
         .statusCode(200)
         .body(containsString("<title>Home</title>"))
         // alert
-        .body(containsString("Welcome, asd"))
+        .body(containsString("Welcome, "+userName))
         // user gravatar in menu
-        .body(containsString("<span class=\"user-link\" title=\"asd\">\n"
-                + "<img src=\"https://www.gravatar.com/avatar/"+JavaExtensions.gravatarHash("manual@example.com")+"?s=20\"/>\n"
-                + "asd</span>"))
+        .body(containsString("<span class=\"user-link\" title=\""+userName+"\">\n"
+                + "<img src=\"https://www.gravatar.com/avatar/"+JavaExtensions.gravatarHash(userName+"@example.com")+"?s=20\"/>\n"
+                + userName+"<i class=\"bi bi-"+icon+"\"></i></span>"))
         // Todo link
         .body(containsString("<a class=\"nav-link\" aria-current=\"page\" href=\"/Todos/index\">Todos</a>"))
         // Logout link
@@ -244,16 +298,25 @@ public class TodoResourceTest {
         .header("Location", url)
         // clear cookie
         .cookie("QuarkusUser", "");
-    }
 
+    }
+    
     @Test
     public void testManualLogin() {
-        // login form action
         RenardeCookieFilter cookieFilter = new RenardeCookieFilter();
-        given()
-        .when()
-        .formParam("userName", "fromage")
-        .formParam("password", "1q2w3e4r")
+        testManualLogin(cookieFilter, "fromage", "shield-lock", request -> {
+            request
+            .formParam("userName", "fromage")
+            .formParam("password", "1q2w3e4r");
+        });
+    }
+
+    private void testManualLogin(Filter cookieFilter, String userName, String icon, Consumer<RequestSpecification> requestCustomiser) {
+        // login form action
+        RequestSpecification request = given()
+        .when();
+        requestCustomiser.accept(request);
+        request
         .filter(cookieFilter)
         .redirects().follow(false)
         .post("/Login/manualLogin")
@@ -262,43 +325,7 @@ public class TodoResourceTest {
         .cookie("QuarkusUser")
         .header("Location", url);
 
-        // home page
-        given()
-        .when()
-        .filter(cookieFilter)
-        .get("/")
-        .then()
-        .statusCode(200)
-        .body(containsString("<title>Welcome to Todos</title>"))
-        // user gravatar in menu
-        .body(containsString("<span class=\"user-link\" title=\"fromage\">\n"
-                + "<img src=\"https://www.gravatar.com/avatar/36671d7b88823c218c135c39f8b35c3f?s=20\"/>\n"
-                + "fromage</span>"))
-        // Todo link
-        .body(containsString("<a class=\"nav-link\" aria-current=\"page\" href=\"/Todos/index\">Todos</a>"))
-        // Logout link
-        .body(containsString("<a class=\"nav-link\" aria-current=\"page\" href=\"/_renarde/security/logout\">Logout</a>"));
-
-        // can go to Todo page
-        given()
-        .when()
-        .filter(cookieFilter)
-        .get("/Todos/index")
-        .then()
-        .statusCode(200);
-
-        // now logout
-        given()
-        .when()
-        .filter(cookieFilter)
-        .redirects().follow(false)
-        .get("/_renarde/security/logout")
-        .then()
-        .statusCode(303)
-        // go home
-        .header("Location", url)
-        // clear cookie
-        .cookie("QuarkusUser", "");
+        testLoggedIn(userName, icon, cookieFilter);
     }
 
     @Test
@@ -419,7 +446,7 @@ public class TodoResourceTest {
         // user gravatar in menu
         .body(containsString("<span class=\"user-link\" title=\""+userName+"\">\n"
                 + "<img src=\"https://www.gravatar.com/avatar/"+JavaExtensions.gravatarHash(email)+"?s=20\"/>\n"
-                + userName+"</span>"))
+                + userName+"<i class=\"bi bi-shield-check\"></i></span>"))
         // Todo link
         .body(containsString("<a class=\"nav-link\" aria-current=\"page\" href=\"/Todos/index\">Todos</a>"))
         // Logout link
