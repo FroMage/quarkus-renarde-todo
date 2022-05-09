@@ -27,6 +27,7 @@ import io.quarkiverse.renarde.oidc.test.MockFacebookOidc;
 import io.quarkiverse.renarde.oidc.test.MockGithubOidc;
 import io.quarkiverse.renarde.oidc.test.MockGoogleOidc;
 import io.quarkiverse.renarde.oidc.test.MockMicrosoftOidc;
+import io.quarkiverse.renarde.oidc.test.MockTwitterOidc;
 import io.quarkiverse.renarde.oidc.test.RenardeCookieFilter;
 import io.quarkiverse.renarde.util.Flash;
 import io.quarkiverse.renarde.util.JavaExtensions;
@@ -49,6 +50,7 @@ import io.vertx.core.json.JsonObject;
 @MockGoogleOidc
 @MockAppleOidc
 @MockMicrosoftOidc
+@MockTwitterOidc
 @MockGithubOidc
 @QuarkusTest
 public class TodoResourceTest {
@@ -328,11 +330,6 @@ public class TodoResourceTest {
         testLoggedIn(userName, icon, cookieFilter);
     }
 
-    @Test
-    public void githubLoginTest() {
-        oidcTest("github", "octocat@github.com", "monalisa", "octocat", "octocat");
-    }
-
     private void oidcTest(String provider, String email, String firstName, String lastName, String userName) {
         RenardeCookieFilter cookieFilter = new RenardeCookieFilter();
         ValidatableResponse response = follow("/_renarde/security/login-"+provider, cookieFilter);
@@ -356,6 +353,16 @@ public class TodoResourceTest {
         finishConfirmation(cookieFilter, confirmationCode,
                            firstName, lastName, userName, email, "q_session_"+provider);
         
+    }
+
+    @Test
+    public void githubLoginTest() {
+        oidcTest("github", "octocat@github.com", "monalisa", "octocat", "octocat");
+    }
+
+    @Test
+    public void twitterLoginTest() {
+        oidcTest("twitter", "twitter@example.com", "Foo", "Bar", "TwitterUser");
     }
 
     @Test
