@@ -80,9 +80,10 @@ public class TodoResourceTest {
         // cannot go to Todo page
         given()
         .when()
+        .redirects().follow(false)
         .get("/Todos/index")
         .then()
-        .statusCode(401);
+        .statusCode(302);
     }
 
     @Test
