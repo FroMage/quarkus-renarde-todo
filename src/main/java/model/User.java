@@ -3,15 +3,14 @@ package model;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
-
-import io.quarkiverse.renarde.oidc.RenardeUser;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+import io.quarkiverse.renarde.security.RenardeUser;
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 
 @Entity
@@ -40,12 +39,13 @@ public class User extends PanacheEntity implements RenardeUser {
 	@Enumerated(EnumType.STRING)
 	public UserStatus status;
 	
-	public boolean isRegistered(){
+	@Override
+	public boolean registered(){
 	    return status == UserStatus.REGISTERED;
 	}
 
     @Override
-    public Set<String> getRoles() {
+    public Set<String> roles() {
         Set<String> roles = new HashSet<>();
         if(isAdmin) {
             roles.add("admin");
@@ -54,7 +54,7 @@ public class User extends PanacheEntity implements RenardeUser {
     }
 
     @Override
-    public String getUserId() {
+    public String userId() {
         return userName;
     }
 

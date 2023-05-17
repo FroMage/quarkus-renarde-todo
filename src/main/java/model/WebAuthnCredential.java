@@ -3,10 +3,10 @@ package model;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import io.vertx.ext.auth.webauthn.Authenticator;

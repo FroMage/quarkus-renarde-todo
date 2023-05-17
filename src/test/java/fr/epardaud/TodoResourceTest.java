@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.apache.http.client.CookieStore;
 import org.apache.http.cookie.Cookie;

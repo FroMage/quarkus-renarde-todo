@@ -2,23 +2,23 @@ package rest;
 
 import java.util.UUID;
 
-import javax.inject.Inject;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
-import javax.ws.rs.BeanParam;
-import javax.ws.rs.POST;
-import javax.ws.rs.core.NewCookie;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.ResponseBuilder;
+import jakarta.inject.Inject;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.ws.rs.BeanParam;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.core.NewCookie;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response.ResponseBuilder;
 
 import org.hibernate.validator.constraints.Length;
 import org.jboss.resteasy.reactive.RestForm;
 import org.jboss.resteasy.reactive.RestQuery;
 
 import email.Emails;
-import io.quarkiverse.renarde.oidc.ControllerWithUser;
-import io.quarkiverse.renarde.oidc.RenardeSecurity;
 import io.quarkiverse.renarde.router.Router;
+import io.quarkiverse.renarde.security.ControllerWithUser;
+import io.quarkiverse.renarde.security.RenardeSecurity;
 import io.quarkiverse.renarde.util.StringUtils;
 import io.quarkus.elytron.security.common.BcryptUtil;
 import io.quarkus.qute.CheckedTemplate;

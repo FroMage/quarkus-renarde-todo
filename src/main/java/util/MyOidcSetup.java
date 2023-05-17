@@ -3,16 +3,17 @@ package util;
 import java.net.URI;
 import java.util.UUID;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.transaction.Transactional;
-import javax.ws.rs.core.Response;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
+import jakarta.ws.rs.core.Response;
 
 import io.quarkiverse.renarde.oidc.RenardeOidcHandler;
-import io.quarkiverse.renarde.oidc.RenardeSecurity;
-import io.quarkiverse.renarde.oidc.RenardeUser;
-import io.quarkiverse.renarde.oidc.RenardeUserProvider;
+import io.quarkiverse.renarde.oidc.RenardeOidcSecurity;
 import io.quarkiverse.renarde.router.Router;
+import io.quarkiverse.renarde.security.RenardeSecurity;
+import io.quarkiverse.renarde.security.RenardeUser;
+import io.quarkiverse.renarde.security.RenardeUserProvider;
 import io.quarkiverse.renarde.util.Flash;
 import io.quarkiverse.renarde.util.RedirectException;
 import model.User;
@@ -23,6 +24,9 @@ import rest.Login;
 @ApplicationScoped
 public class MyOidcSetup implements RenardeUserProvider, RenardeOidcHandler {
 
+    @Inject
+    RenardeOidcSecurity oidcSecurity;
+    
     @Inject
     RenardeSecurity security;
     
@@ -49,13 +53,13 @@ public class MyOidcSetup implements RenardeUserProvider, RenardeOidcHandler {
             user.tenantId = tenantId;
             user.authId = authId;
             
-            user.email = security.getOidcEmail();
+            user.email = oidcSecurity.getOidcEmail();
             // workaround for Twitter
             if(user.email == null)
                 user.email = "twitter@example.com";
-            user.firstName = security.getOidcFirstName();
-            user.lastName = security.getOidcLastName();
-            user.userName = security.getOidcUserName();
+            user.firstName = oidcSecurity.getOidcFirstName();
+            user.lastName = oidcSecurity.getOidcLastName();
+            user.userName = oidcSecurity.getOidcUserName();
 
             user.status = UserStatus.CONFIRMATION_REQUIRED;
             user.confirmationCode = UUID.randomUUID().toString();
@@ -63,7 +67,7 @@ public class MyOidcSetup implements RenardeUserProvider, RenardeOidcHandler {
 
             // go to registration
             uri = Router.getURI(Login::confirm, user.confirmationCode);
-        } else if(!user.isRegistered()) {
+        } else if(!user.registered()) {
             // user exists, but not fully registered yet
             // go to registration
             uri = Router.getURI(Login::confirm, user.confirmationCode);
@@ -84,7 +88,7 @@ public class MyOidcSetup implements RenardeUserProvider, RenardeOidcHandler {
         }
         // redirect to registration
         URI uri;
-        if(!user.isRegistered()) {
+        if(!user.registered()) {
             uri = Router.getURI(Login::confirm, ((User)user).confirmationCode);
         } else {
             flash.flash("message", "Already logged in");

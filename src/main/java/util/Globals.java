@@ -1,6 +1,6 @@
 package util;
 
-import javax.ws.rs.core.UriInfo;
+import jakarta.ws.rs.core.UriInfo;
 
 import io.quarkus.arc.Arc;
 import io.quarkus.qute.TemplateGlobal;
