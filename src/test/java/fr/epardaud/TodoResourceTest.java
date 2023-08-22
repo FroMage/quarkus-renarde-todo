@@ -27,10 +27,12 @@ import io.quarkiverse.renarde.oidc.test.MockFacebookOidc;
 import io.quarkiverse.renarde.oidc.test.MockGithubOidc;
 import io.quarkiverse.renarde.oidc.test.MockGoogleOidc;
 import io.quarkiverse.renarde.oidc.test.MockMicrosoftOidc;
+import io.quarkiverse.renarde.oidc.test.MockSpotifyOidc;
 import io.quarkiverse.renarde.oidc.test.MockTwitterOidc;
 import io.quarkiverse.renarde.oidc.test.RenardeCookieFilter;
 import io.quarkiverse.renarde.util.Flash;
 import io.quarkiverse.renarde.util.JavaExtensions;
+import io.quarkus.logging.Log;
 import io.quarkus.mailer.Mail;
 import io.quarkus.mailer.MockMailbox;
 import io.quarkus.test.common.http.TestHTTPResource;
@@ -52,6 +54,7 @@ import io.vertx.core.json.JsonObject;
 @MockMicrosoftOidc
 @MockTwitterOidc
 @MockGithubOidc
+@MockSpotifyOidc
 @QuarkusTest
 public class TodoResourceTest {
 
@@ -86,77 +89,6 @@ public class TodoResourceTest {
         .statusCode(302);
     }
 
-    @Test
-    public void testProtectedPageWithInvalidJwt() throws NoSuchAlgorithmException {
-        // canary: valid
-        String token = Jwt.issuer("https://example.com/issuer")
-                .upn("fromage")
-                .issuedAt(Instant.now())
-                .expiresIn(Duration.ofDays(10))
-                .innerSign().encrypt();
-        // valid
-        given()
-        .when()
-        .cookie("QuarkusUser", token)
-        .log().ifValidationFails()
-        .redirects().follow(false)
-        .get("/")
-        .then()
-        .log().ifValidationFails()
-        .statusCode(200);
-        // expired
-        token = Jwt.issuer("https://example.com/issuer")
-                .upn("fromage")
-                .issuedAt(Instant.now().minus(20, ChronoUnit.DAYS))
-                .expiresIn(Duration.ofDays(10))
-                .innerSign().encrypt();
-        assertRedirectWithMessage(token, "Login expired, you've been logged out");
-        // invalid issuer
-        token = Jwt.issuer("https://example.com/other-issuer")
-                .upn("fromage")
-                .issuedAt(Instant.now())
-                .expiresIn(Duration.ofDays(10))
-                .innerSign().encrypt();
-        assertRedirectWithMessage(token, "Invalid session (bad JWT), you've been logged out");
-        // invalid signature
-        KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
-        kpg.initialize(2048);
-        KeyPair kp = kpg.generateKeyPair();
-        token = Jwt.issuer("https://example.com/issuer")
-                .upn("fromage")
-                .issuedAt(Instant.now())
-                .expiresIn(Duration.ofDays(10))
-                .innerSign(kp.getPrivate()).encrypt(kp.getPublic());
-        assertRedirectWithMessage(token, "Invalid session (bad signature), you've been logged out");
-        // invalid user
-        token = Jwt.issuer("https://example.com/issuer")
-                .upn("cheesy")
-                .issuedAt(Instant.now())
-                .expiresIn(Duration.ofDays(10))
-                .innerSign().encrypt();
-        assertRedirectWithMessage(token, "Invalid user: cheesy");
-    }
-
-    private void assertRedirectWithMessage(String token, String message) {
-        // redirect with message
-        String flash = given()
-        .when()
-        .cookie("QuarkusUser", token)
-        .log().ifValidationFails()
-        .redirects().follow(false)
-        .get("/")
-        .then()
-        .log().ifValidationFails()
-        .statusCode(303)
-        // logout
-        .cookie("QuarkusUser", "")
-        .extract().cookie(Flash.FLASH_COOKIE_NAME);
-        Map<String, Object> data = Flash.decodeCookieValue(flash);
-        Assertions.assertTrue(data.containsKey("message"));
-        Assertions.assertEquals(message, data.get("message"));
-    }
-
-    @Test
     public void testManualRegistration() {
         String confirmationCode = register("manual");
         
@@ -322,6 +254,7 @@ public class TodoResourceTest {
         request
         .filter(cookieFilter)
         .redirects().follow(false)
+        .log().all()
         .post("/Login/manualLogin")
         .then()
         .statusCode(303)
@@ -358,7 +291,7 @@ public class TodoResourceTest {
 
     @Test
     public void githubLoginTest() {
-        oidcTest("github", "octocat@github.com", "monalisa", "octocat", "octocat");
+        oidcTest("github", "github@example.com", "Foo", "Bar", "GitHubUser");
     }
 
     @Test

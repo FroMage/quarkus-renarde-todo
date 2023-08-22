@@ -14,9 +14,9 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
     <quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
-    <quarkus.platform.version>3.0.2.Final</quarkus.platform.version>
+    <quarkus.platform.version>3.1.2.Final</quarkus.platform.version>
     <surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
-    <renarde.version>3.0.1</renarde.version>
+    <renarde.version>3.0.4-SNAPSHOT</renarde.version>
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -58,6 +58,13 @@
       <groupId>io.quarkiverse.renarde</groupId>
       <artifactId>quarkus-renarde-oidc-tests</artifactId>
       <version>${renarde.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.quarkiverse.renarde</groupId>
+      <artifactId>quarkus-renarde-test</artifactId>
+      <version>${renarde.version}</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
