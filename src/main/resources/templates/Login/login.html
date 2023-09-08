@@ -9,13 +9,13 @@
     <fieldset>
         <legend>Login/Register</legend>
         <div class="d-grid gap-2">
-          <a class="btn btn-block btn-light" href="{uri:RenardeOidcController.loginUsingOidc('twitter')}" role="button"><img src="/images/signin-twitter.svg" height="16px" style="vertical-align: text-top"/> Twitter</a>
-          <a class="btn btn-block btn-light" href="{uri:RenardeOidcController.loginUsingOidc('github')}" role="button"><img src="/images/signin-github.svg" height="16px" style="vertical-align: text-top"/> GitHub</a>
-          <a class="btn btn-block btn-light" href="{uri:RenardeOidcController.loginUsingOidc('google')}" role="button"><img src="/images/signin-google.svg" height="16px" style="vertical-align: text-top"/> Google</a>
-          <a class="btn btn-block btn-light" href="{uri:RenardeOidcController.loginUsingOidc('microsoft')}" role="button"><img src="/images/signin-microsoft.svg" height="16px" style="vertical-align: text-top"/> Microsoft</a>
-          <a class="btn btn-block btn-light" href="{uri:RenardeOidcController.loginUsingOidc('facebook')}" role="button"><img src="/images/signin-facebook.svg" height="16px" style="vertical-align: text-top"/> Facebook</a>
-          <a class="btn btn-block btn-light" href="{uri:RenardeOidcController.loginUsingOidc('apple')}" role="button"><img src="/images/signin-apple.svg" height="16px" style="vertical-align: text-top"/> Apple</a>
-          <a class="btn btn-block btn-light" href="{uri:RenardeOidcController.loginUsingOidc('spotify')}" role="button"><img src="/images/signin-spotify.svg" height="16px" style="vertical-align: text-top"/> Spotify</a>
+          <a class="btn btn-block btn-light" href="{uri:RenardeOidcController.loginUsingOidc('twitter')}" role="button"><img src="/static/images/signin-twitter.svg" height="16px" style="vertical-align: text-top"/> Twitter</a>
+          <a class="btn btn-block btn-light" href="{uri:RenardeOidcController.loginUsingOidc('github')}" role="button"><img src="/static/images/signin-github.svg" height="16px" style="vertical-align: text-top"/> GitHub</a>
+          <a class="btn btn-block btn-light" href="{uri:RenardeOidcController.loginUsingOidc('google')}" role="button"><img src="/static/images/signin-google.svg" height="16px" style="vertical-align: text-top"/> Google</a>
+          <a class="btn btn-block btn-light" href="{uri:RenardeOidcController.loginUsingOidc('microsoft')}" role="button"><img src="/static/images/signin-microsoft.svg" height="16px" style="vertical-align: text-top"/> Microsoft</a>
+          <a class="btn btn-block btn-light" href="{uri:RenardeOidcController.loginUsingOidc('facebook')}" role="button"><img src="/static/images/signin-facebook.svg" height="16px" style="vertical-align: text-top"/> Facebook</a>
+          <a class="btn btn-block btn-light" href="{uri:RenardeOidcController.loginUsingOidc('apple')}" role="button"><img src="/static/images/signin-apple.svg" height="16px" style="vertical-align: text-top"/> Apple</a>
+          <a class="btn btn-block btn-light" href="{uri:RenardeOidcController.loginUsingOidc('spotify')}" role="button"><img src="/static/images/signin-spotify.svg" height="16px" style="vertical-align: text-top"/> Spotify</a>
         </div>
      </fieldset>
   </div>
@@ -25,7 +25,7 @@
             <legend>Login</legend>
             {#formElement name="userName" label="User Name" class="input-group"}
                 {#input name="userName" id="username"/}
-                <button class="btn btn-primary" type="button" id="webauthn"><img src="/images/webauthn.svg" height="16px" title="Use WebAuthn instead of a password"/> WebAuthn Login</button>
+                <button class="btn btn-primary" type="button" id="webauthn"><img src="/static/images/webauthn.svg" height="16px" title="Use WebAuthn instead of a password"/> WebAuthn Login</button>
             {/formElement}
             {#formElement name="password" label="Password" class="input-group"}
                 {#input name="password" type="password" id="password"/}
