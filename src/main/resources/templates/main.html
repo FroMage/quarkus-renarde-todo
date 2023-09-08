@@ -23,11 +23,14 @@
               <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
-              <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+              <if class="navbar-nav me-auto mb-2 mb-lg-0">
                 {#if !inject:user}
                     <li class="nav-item"><a class="nav-link" aria-current="page" href="{uri:Login.login()}">Login/Register</a></li>
                 {#else}
                     <li class="nav-item"><a class="nav-link" aria-current="page" href="{uri:Todos.index()}">Todos</a></li>
+                    {#if inject:user.isAdmin}
+                      <li class="nav-item"><a class="nav-link" aria-current="page" href="/_renarde/backoffice/index"><i class="bi bi-database"></i>Backoffice</a></li>
+                    {/if}
                     <li class="nav-item"><a class="nav-link" aria-current="page" href="{uri:RenardeSecurityController.logout()}">Logout</a></li>
                 {/if}
                 <li class="nav-item dropdown">
