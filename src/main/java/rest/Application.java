@@ -1,11 +1,10 @@
 package rest;
 
-import jakarta.ws.rs.Path;
-
 import io.quarkiverse.renarde.Controller;
 import io.quarkus.qute.CheckedTemplate;
 import io.quarkus.qute.TemplateInstance;
 import io.smallrye.common.annotation.Blocking;
+import jakarta.ws.rs.Path;
 
 @Blocking
 public class Application extends Controller {
@@ -24,5 +23,15 @@ public class Application extends Controller {
     @Path("/about")
     public TemplateInstance about() {
         return Templates.about();
+    }
+
+    public void french() {
+        i18n.set("fr");
+        index();
+    }
+
+    public void english() {
+        i18n.set("en");
+        index();
     }
 }

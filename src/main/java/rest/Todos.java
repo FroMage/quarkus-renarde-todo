@@ -46,7 +46,7 @@ public class Todos extends ControllerWithUser<User> {
         if(todo.owner != getUser())
             notFound();
         todo.delete();
-        flash("message", "Task deleted");
+        flash("message", i18n.formatMessage("todos.message.deleted", todo.task));
         index();
     }
     
@@ -59,7 +59,7 @@ public class Todos extends ControllerWithUser<User> {
         todo.done = !todo.done;
         if(todo.done)
             todo.doneDate = new Date();
-        flash("message", "Task updated");
+        flash("message", i18n.formatMessage("todos.message.updated", todo.task));
         index();
     }
 
@@ -72,7 +72,7 @@ public class Todos extends ControllerWithUser<User> {
         todo.task = task;
         todo.owner = getUser();
         todo.persist();
-        flash("message", "Task added");
+        flash("message", i18n.formatMessage("todos.message.updated", todo.task));
         index();
     }
 }

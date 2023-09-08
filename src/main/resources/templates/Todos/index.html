@@ -5,8 +5,8 @@
   <thead class="table-dark">
     <tr>
       <th scope="col">#</th>
-      <th scope="col">Task</th>
-      <th scope="col">Action <a href="{uri:Todos.pdf}" title="Download as PDF" class="float-end text-reset"><i class="bi bi-filetype-pdf"></i></a></th>
+      <th scope="col">{m:todos.index.tasks}</th>
+      <th scope="col">{m:todos.index.action} <a href="{uri:Todos.pdf}" title="{m:todos.index.pdf}" class="float-end text-reset"><i class="bi bi-filetype-pdf"></i></a></th>
     </tr>
   </thead>
   <tbody>
@@ -23,22 +23,22 @@
       <td>
       {#form uri:Todos.done(todo.id) class="inline"}
         {#if todo.done}
-          <button type="submit" class="btn btn-warning" title="Mark as undone"><i class="bi-arrow-counterclockwise"></i></button>
+          <button type="submit" class="btn btn-warning" title="{m:todos.index.done}"><i class="bi-arrow-counterclockwise"></i></button>
         {#else}
-          <button type="submit" class="btn btn-success" title="Mark as done"><i class="bi-check"></i></button>
+          <button type="submit" class="btn btn-success" title="{m:todos.index.undone}"><i class="bi-check"></i></button>
         {/if}
       {/form}
       {#form uri:Todos.delete(todo.id) class="inline"}
-        <button type="submit" class="btn btn-danger" title="Delete"><i class="bi-trash"></i></button>
+        <button type="submit" class="btn btn-danger" title="{m:todos.index.delete}"><i class="bi-trash"></i></button>
       {/form}
       </td>
     </tr>
     {/for}
     <tr>
-      <th scope="row">New</th>
+      <th scope="row">{m:todos.index.new}</th>
       <td>
       {#form uri:Todos.add()}
-        {#input name="task" placeholder="Type task and press ENTER" autofocus=true/}
+        {#input name="task" placeholder=m:todos.index.placeholder autofocus=true/}
       {/form}
       </td>
       <td></td>
