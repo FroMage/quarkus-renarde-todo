@@ -59,6 +59,16 @@
     </dependency>
     <dependency>
       <groupId>io.quarkiverse.renarde</groupId>
+      <artifactId>quarkus-renarde-barcode</artifactId>
+      <version>${renarde.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.quarkiverse.renarde</groupId>
+      <artifactId>quarkus-renarde-pdf</artifactId>
+      <version>${renarde.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.quarkiverse.renarde</groupId>
       <artifactId>quarkus-renarde-oidc</artifactId>
       <version>${renarde.version}</version>
     </dependency>

@@ -3,9 +3,11 @@
 
 <div class="row">
   <div class="col-lg-4">
-    <h2>Super cool</h2>
+    <h2>Load on your mobile phone</h2>
     <p>
-        Yay!.
+		{#let uri = uriabs:Application.index}
+        	{#qrcode uri.toString()/}
+        {/let}
     </p>
   </div>
   <div class="col-lg-4">

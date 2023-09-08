@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Todos</title>
+        <meta charset="UTF-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        {#bundle /}
+        <style>
+			table {
+				width: 100%;
+			}
+		</style>
+    </head>
+    <body>
+        <main class="container">
+
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Task</th>
+    </tr>
+  </thead>
+  <tbody>
+    {#for todo in todos}
+    <tr {#if todo.done}class="table-secondary"{/if}>
+      <th scope="row">{todo.id}</th>
+      <td>
+        {#if todo.done}
+          <del>{todo.task}</del> (done {todo.doneDate.since})
+        {#else}
+          {todo.task}
+        {/if}
+      </td>
+    </tr>
+    {/for}
+  </tbody>
+</table>
+</main>
+</body></html>

@@ -3,18 +3,18 @@ package rest;
 import java.util.Date;
 import java.util.List;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-
 import org.jboss.resteasy.reactive.RestForm;
 import org.jboss.resteasy.reactive.RestPath;
 
+import io.quarkiverse.renarde.pdf.Pdf;
 import io.quarkiverse.renarde.security.ControllerWithUser;
 import io.quarkus.qute.CheckedTemplate;
 import io.quarkus.qute.TemplateInstance;
 import io.quarkus.security.Authenticated;
 import io.smallrye.common.annotation.Blocking;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Produces;
 import model.Todo;
 import model.User;
 
@@ -25,11 +25,18 @@ public class Todos extends ControllerWithUser<User> {
     @CheckedTemplate
     static class Templates {
         public static native TemplateInstance index(List<Todo> todos);
+        public static native TemplateInstance pdf(List<Todo> todos);
     }
     
     public TemplateInstance index() {
         List<Todo> todos = Todo.findByOwner(getUser());
         return Templates.index(todos);
+    }
+
+    @Produces(Pdf.APPLICATION_PDF)
+    public TemplateInstance pdf() {
+        List<Todo> todos = Todo.findByOwner(getUser());
+        return Templates.pdf(todos);
     }
     
     @POST
