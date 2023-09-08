@@ -21,15 +21,15 @@
         {/if}
       </td>
       <td>
-      {#form uri:Todos.done(todo.id) klass="inline"}
+      {#form uri:Todos.done(todo.id) class="inline"}
         {#if todo.done}
-          <button type="submit" class="btn btn-warning"><i class="bi-arrow-counterclockwise"></i> Mark Undone</button>
+          <button type="submit" class="btn btn-warning" title="Mark as undone"><i class="bi-arrow-counterclockwise"></i></button>
         {#else}
-          <button type="submit" class="btn btn-success"><i class="bi-check"></i> Mark Done</button>
+          <button type="submit" class="btn btn-success" title="Mark as done"><i class="bi-check"></i></button>
         {/if}
       {/form}
-      {#form uri:Todos.delete(todo.id) klass="inline"}
-        <button type="submit" class="btn btn-danger"><i class="bi-trash"></i> Delete</button>
+      {#form uri:Todos.delete(todo.id) class="inline"}
+        <button type="submit" class="btn btn-danger" title="Delete"><i class="bi-trash"></i></button>
       {/form}
       </td>
     </tr>
@@ -38,7 +38,7 @@
       <th scope="row">New</th>
       <td>
       {#form uri:Todos.add()}
-        {#input name="task" placeholder="Type task and press ENTER"/}
+        {#input name="task" placeholder="Type task and press ENTER" autofocus=true/}
       {/form}
       </td>
       <td></td>
