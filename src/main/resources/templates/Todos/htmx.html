@@ -1,0 +1,66 @@
+{#include main.html }
+{#title}Todos Htmx{/title}
+
+{#moreScripts}
+<script src="https://unpkg.com/htmx.org@1.9.5" integrity="sha384-xcuj3WpfgjlKF+FXhSQFQ0ZNr39ln+hwjN3npfM9VBnUskLolQAcN80McRIVOPuO" crossorigin="anonymous"></script>
+{/moreScripts}
+
+<div id="message">
+{#fragment id="message" rendered=false}
+<div id="message" hx-swap-oob="true" class="alert alert-success">{message}</div>
+{/fragment}
+{#fragment id="error" rendered=false}
+<div id="message" hx-swap-oob="true" class="alert alert-danger">{message}</div>
+{/fragment}
+</div>
+
+<table class="table">
+  <thead class="table-dark">
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">{m:todos.index.tasks}</th>
+      <th scope="col">{m:todos.index.action} <a href="{uri:Todos.pdf}" title="{m:todos.index.pdf}" class="float-end text-reset"><i class="bi bi-filetype-pdf"></i></a></th>
+    </tr>
+  </thead>
+  <tbody id="todos">
+    {#for todo in todos}
+    {#fragment id="row"}
+    <tr {#if todo.done}class="table-secondary"{/if} id="row-{todo.id}">
+      <th scope="row">{todo.id}</th>
+      <td>
+        {#if todo.done}
+          <del>{todo.task}</del> (done {todo.doneDate.since})
+        {#else}
+          {todo.task}
+        {/if}
+      </td>
+      <td>
+        {#if todo.done}
+          <button type="submit" class="btn btn-warning" title="{m:todos.index.done}"
+          	hx-post="{uri:Todos.done(todo.id)}" hx-target="#row-{todo.id}" hx-swap="outerHTML"
+          	hx-vals='{"{inject:csrf.parameterName}": "{inject:csrf.token}"}'><i class="bi-arrow-counterclockwise"></i></button>
+        {#else}
+          <button type="submit" class="btn btn-success" title="{m:todos.index.undone}"
+          	hx-post="{uri:Todos.done(todo.id)}" hx-target="#row-{todo.id}" hx-swap="outerHTML"
+          	hx-vals='{"{inject:csrf.parameterName}": "{inject:csrf.token}"}'><i class="bi-check"></i></button>
+        {/if}
+        <button type="submit" class="btn btn-danger" title="{m:todos.index.delete}"
+          	hx-post="{uri:Todos.delete(todo.id)}" hx-target="#row-{todo.id}" hx-swap="delete"
+          	hx-vals='{"{inject:csrf.parameterName}": "{inject:csrf.token}"}'><i class="bi-trash"></i></button>
+      </td>
+    </tr>
+    {/fragment}
+    {/for}
+    <tr id="new">
+      <th scope="row">{m:todos.index.new}</th>
+      <td>
+	  <input hx-post="{uri:Todos.add()}" name="task" placeholder="{m:todos.index.placeholder}" autofocus
+	  		hx-target="#new" hx-swap="beforebegin"
+	  		hx-vals='{"{inject:csrf.parameterName}": "{inject:csrf.token}"}'/>
+      </td>
+      <td></td>
+    </tr>
+  </tbody>
+</table>
+
+{/include}

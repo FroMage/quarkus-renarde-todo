@@ -28,6 +28,7 @@
                     <li class="nav-item"><a class="nav-link" aria-current="page" href="{uri:Login.login()}">{m:main.login}</a></li>
                 {#else}
                     <li class="nav-item"><a class="nav-link" aria-current="page" href="{uri:Todos.index()}">{m:main.todos}</a></li>
+                    <li class="nav-item"><a class="nav-link" aria-current="page" href="{uri:Todos.htmx()}">{m:main.todos} (htmx)</a></li>
                     {#if inject:user.isAdmin}
                       <li class="nav-item"><a class="nav-link" aria-current="page" href="/_renarde/backoffice/index"><i class="bi bi-database"></i>{m:main.backoffice}</a></li>
                     {/if}
