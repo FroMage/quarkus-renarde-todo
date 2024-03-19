@@ -206,7 +206,7 @@ public class TodoResourceTest {
         .body(containsString("Welcome, "+userName))
         // user gravatar in menu
         .body(containsString("<span class=\"user-link\" title=\""+userName+"\">\n"
-                + "<img src=\"https://www.gravatar.com/avatar/"+JavaExtensions.gravatarHash(userName+"@example.com")+"?s=20\"/>\n"
+                + "<img src=\"https://www.gravatar.com/avatar/"+JavaExtensions.gravatarHash(userName+"@example.com")+"?s=20\" />"
                 + userName+"<i class=\"bi bi-"+icon+"\"></i></span>"))
         // Todo link
         .body(containsString("<a class=\"nav-link\" aria-current=\"page\" href=\"/Todos/index\">Todos</a>"))
@@ -386,7 +386,7 @@ public class TodoResourceTest {
         .body(containsString("Welcome, "+userName))
         // user gravatar in menu
         .body(containsString("<span class=\"user-link\" title=\""+userName+"\">\n"
-                + "<img src=\"https://www.gravatar.com/avatar/"+JavaExtensions.gravatarHash(email)+"?s=20\"/>\n"
+                + "<img src=\"https://www.gravatar.com/avatar/"+JavaExtensions.gravatarHash(email)+"?s=20\" />"
                 + userName+"<i class=\"bi bi-shield-check\"></i></span>"))
         // Todo link
         .body(containsString("<a class=\"nav-link\" aria-current=\"page\" href=\"/Todos/index\">Todos</a>"))
