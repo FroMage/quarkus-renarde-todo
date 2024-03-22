@@ -16,7 +16,7 @@
     <quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
     <quarkus.platform.version>3.8.3</quarkus.platform.version>
     <surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
-    <renarde.version>3.0.9</renarde.version>
+    <renarde.version>3.0.12-SNAPSHOT</renarde.version>
   </properties>
   <dependencyManagement>
     <dependencies>
