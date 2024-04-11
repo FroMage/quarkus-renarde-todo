@@ -14,9 +14,10 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
     <quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
-    <quarkus.platform.version>3.8.3</quarkus.platform.version>
+    <quarkus.platform.version>3.9.3</quarkus.platform.version>
     <surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
-    <renarde.version>3.0.9</renarde.version>
+    <renarde.version>3.0.12</renarde.version>
+    <web-bundler.version>1.4.0</web-bundler.version>
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -33,19 +34,31 @@
     <dependency>
       <groupId>io.quarkiverse.web-bundler</groupId>
       <artifactId>quarkus-web-bundler</artifactId>
-      <version>1.1.1</version>
+      <version>${web-bundler.version}</version>
     </dependency>
     <dependency>
       <groupId>org.mvnpm</groupId>
       <artifactId>bootstrap</artifactId>
       <version>5.3.1</version>
-      <scope>runtime</scope>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+          <groupId>org.mvnpm.at.popperjs</groupId>
+          <artifactId>core</artifactId>
+          <version>2.11.8</version>
+          <scope>provided</scope>
+      </dependency>
+    <dependency>
+      <groupId>org.mvnpm</groupId>
+      <artifactId>htmx.org</artifactId>
+      <version>1.9.11</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.mvnpm</groupId>
       <artifactId>bootstrap-icons</artifactId>
       <version>1.10.5</version>
-      <scope>runtime</scope>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>io.quarkiverse.renarde</groupId>
@@ -106,11 +119,11 @@
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-rest-client-reactive</artifactId>
+      <artifactId>quarkus-rest-client</artifactId>
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-resteasy-reactive-jackson</artifactId>
+      <artifactId>quarkus-rest-jackson</artifactId>
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
