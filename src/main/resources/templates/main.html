@@ -34,7 +34,7 @@
                     {/if}
                     <li class="nav-item"><a class="nav-link" aria-current="page" href="{uri:RenardeSecurityController.logout()}">{m:main.logout}</a></li>
                     {#if inject:user.tenantId && inject:user.tenantId is 'apple'}
-                      <li class="nav-item"><a class="nav-link" aria-current="page" href="{uri:RernardeRevokeController.revokeApple()}" >{m:main.revoke}</a></li>
+                      <li class="nav-item"><a class="nav-link" aria-current="page" href="{uri:RenardeRevokeController.revokeApple()}" >{m:main.revoke}</a></li>
                     {/if}
                 {/if}
                 <li class="nav-item dropdown">
