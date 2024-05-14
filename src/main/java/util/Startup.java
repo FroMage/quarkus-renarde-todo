@@ -2,18 +2,16 @@ package util;
 
 import java.util.Date;
 
-import jakarta.enterprise.event.Observes;
-import jakarta.transaction.Transactional;
-
 import io.quarkus.elytron.security.common.BcryptUtil;
-import io.quarkus.runtime.StartupEvent;
+import jakarta.transaction.Transactional;
 import model.Todo;
 import model.User;
 import model.UserStatus;
 
 public class Startup {
+	@io.quarkus.runtime.Startup
     @Transactional
-    public void onStartup(@Observes StartupEvent start) {
+    public void onStartup() {
         System.err.println("Adding user fromage");
         User stef = new User();
         stef.email = "fromage@example.com";
