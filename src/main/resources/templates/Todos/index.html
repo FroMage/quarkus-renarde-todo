@@ -23,9 +23,9 @@
       <td>
       {#form uri:Todos.done(todo.id) class="inline"}
         {#if todo.done}
-          <button type="submit" class="btn btn-warning" title="{m:todos.index.done}"><i class="bi-arrow-counterclockwise"></i></button>
+          <button type="submit" class="btn btn-warning" title="{m:todos.index.undone}"><i class="bi-arrow-counterclockwise"></i></button>
         {#else}
-          <button type="submit" class="btn btn-success" title="{m:todos.index.undone}"><i class="bi-check"></i></button>
+          <button type="submit" class="btn btn-success" title="{m:todos.index.done}"><i class="bi-check"></i></button>
         {/if}
       {/form}
       {#form uri:Todos.delete(todo.id) class="inline"}

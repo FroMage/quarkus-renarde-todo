@@ -33,11 +33,11 @@
       </td>
       <td>
         {#if todo.done}
-          <button type="submit" class="btn btn-warning" title="{m:todos.index.done}"
+          <button type="submit" class="btn btn-warning" title="{m:todos.index.undone}"
           	hx-post="{uri:Todos.done(todo.id)}" hx-target="#row-{todo.id}" hx-swap="outerHTML"
           	hx-vals='{"{inject:csrf.parameterName}": "{inject:csrf.token}"}'><i class="bi-arrow-counterclockwise"></i></button>
         {#else}
-          <button type="submit" class="btn btn-success" title="{m:todos.index.undone}"
+          <button type="submit" class="btn btn-success" title="{m:todos.index.done}"
           	hx-post="{uri:Todos.done(todo.id)}" hx-target="#row-{todo.id}" hx-swap="outerHTML"
           	hx-vals='{"{inject:csrf.parameterName}": "{inject:csrf.token}"}'><i class="bi-check"></i></button>
         {/if}
