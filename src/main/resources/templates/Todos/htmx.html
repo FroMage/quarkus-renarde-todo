@@ -35,15 +35,15 @@
         {#if todo.done}
           <button type="submit" class="btn btn-warning" title="{m:todos.index.undone}"
           	hx-post="{uri:Todos.done(todo.id)}" hx-target="#row-{todo.id}" hx-swap="outerHTML"
-          	hx-vals='{"{inject:csrf.parameterName}": "{inject:csrf.token}"}'><i class="bi-arrow-counterclockwise"></i></button>
+          	><i class="bi-arrow-counterclockwise"></i></button>
         {#else}
           <button type="submit" class="btn btn-success" title="{m:todos.index.done}"
           	hx-post="{uri:Todos.done(todo.id)}" hx-target="#row-{todo.id}" hx-swap="outerHTML"
-          	hx-vals='{"{inject:csrf.parameterName}": "{inject:csrf.token}"}'><i class="bi-check"></i></button>
+          	><i class="bi-check"></i></button>
         {/if}
         <button type="submit" class="btn btn-danger" title="{m:todos.index.delete}"
           	hx-post="{uri:Todos.delete(todo.id)}" hx-target="#row-{todo.id}" hx-swap="delete"
-          	hx-vals='{"{inject:csrf.parameterName}": "{inject:csrf.token}"}'><i class="bi-trash"></i></button>
+          	><i class="bi-trash"></i></button>
       </td>
     </tr>
     {/fragment}
@@ -52,8 +52,7 @@
       <th scope="row">{m:todos.index.new}</th>
       <td>
 	  <input hx-post="{uri:Todos.add()}" name="task" placeholder="{m:todos.index.placeholder}" autofocus
-	  		hx-target="#new" hx-swap="beforebegin"
-	  		hx-vals='{"{inject:csrf.parameterName}": "{inject:csrf.token}"}'/>
+	  		hx-target="#new" hx-swap="beforebegin"/>
       </td>
       <td></td>
     </tr>

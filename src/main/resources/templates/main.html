@@ -9,7 +9,7 @@
         <link rel="shortcut icon" type="image/png" href="/static/images/favicon.svg"/>
         {#insert moreScripts /}
     </head>
-    <body>
+    <body hx-headers='{"{inject:csrf.headerName}":"{inject:csrf.token}"}'>
         <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
           <div class="container-fluid">
             <a class="navbar-brand" href="{uri:Application.index()}">Todo</a>
