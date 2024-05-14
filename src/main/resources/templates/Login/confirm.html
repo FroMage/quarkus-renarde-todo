@@ -1,7 +1,7 @@
 {#include main.html }
 {#title}Complete registration{/title}
 {#moreScripts}
-    <script src="/webauthn/webauthn.js" type="text/javascript" charset="UTF-8"></script>
+    <script src="/q/webauthn/webauthn.js" type="text/javascript" charset="UTF-8"></script>
 {/moreScripts}
 
 {#form uri:Login.complete(newUser.confirmationCode)}
@@ -40,9 +40,9 @@
 
 <script type="text/javascript">
 const webAuthn = new WebAuthn({
-  callbackPath: '/webauthn/callback',
-  registerPath: '/webauthn/register',
-  loginPath: '/webauthn/login'
+  callbackPath: '/q/webauthn/callback',
+  registerPath: '/q/webauthn/register',
+  loginPath: '/q/webauthn/login'
 });
 
 const registerButton = document.getElementById('webauthn');

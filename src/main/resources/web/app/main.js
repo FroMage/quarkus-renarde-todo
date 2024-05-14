@@ -1,7 +1,7 @@
 // INSERT YOUR JS HERE
 
 
-function clearValidationError(inputElement) {
+window.clearValidationError = function(inputElement) {
   // remove any lingering error
   const previousError = inputElement.parentElement.querySelector(".invalid-feedback");
   if(previousError) {
@@ -9,7 +9,7 @@ function clearValidationError(inputElement) {
   }
 }
 
-function addValidationError(inputElement, error){
+window.addValidationError = function(inputElement, error){
   clearValidationError(inputElement);
   inputElement.classList.add('is-invalid');
   // add <span class="invalid-feedback">​error</span>
@@ -19,7 +19,7 @@ function addValidationError(inputElement, error){
   inputElement.parentElement.append(span);
 }
 
-function requireField(name){
+window.requireField = function(name){
   const field = document.getElementById(name);
   clearValidationError(field);
   if(!field.value || field.value.length == 0) {
@@ -30,7 +30,7 @@ function requireField(name){
   }
 }
 
-function requireFields(...args){
+window.requireFields = function(...args){
   return Promise.all(args.map(arg => requireField(arg)));
 }
 
