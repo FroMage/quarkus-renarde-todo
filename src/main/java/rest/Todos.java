@@ -61,6 +61,7 @@ public class Todos extends HxControllerWithUser<User> {
 //        	return concatTemplates(Templates.htmx$message(message), Templates.htmx$row(todo));
         	return Templates.htmx$row(todo);
         } else {
+        	flash("message", message);
             return index();
         }
     }
@@ -102,6 +103,7 @@ public class Todos extends HxControllerWithUser<User> {
 //        	return concatTemplates(Templates.htmx$message(message), Templates.htmx$row(todo));
         	return Templates.htmx$row(todo);
         } else {
+        	flash("message", message);
             return index();
         }
     }
